@@ -12,7 +12,7 @@ public class JfrmLoginUser extends javax.swing.JFrame {
     public JComboBox<String> getCmbRole() {
         return comboxRol;
     }
-
+    
     public JTextField getTxtUsername() {
         return txtUser;
     }
