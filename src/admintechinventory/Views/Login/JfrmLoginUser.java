@@ -1,14 +1,28 @@
-
 package admintechinventory.Views.Login;
 
 import javax.swing.JOptionPane;
-import admintechinventory.Views.Home.JfrmHome;
+import javax.swing.*;
 
 public class JfrmLoginUser extends javax.swing.JFrame {
 
-
     public JfrmLoginUser() {
         initComponents();
+    }
+
+    public JComboBox<String> getCmbRole() {
+        return comboxRol;
+    }
+
+    public JTextField getTxtUsername() {
+        return txtUser;
+    }
+
+    public JPasswordField getTxtPassword() {
+        return txtPassword;
+    }
+
+    public JButton getBtnSignIn() {
+        return btnSingIn;
     }
 
     @SuppressWarnings("unchecked")
@@ -18,7 +32,6 @@ public class JfrmLoginUser extends javax.swing.JFrame {
         jpanelLogin = new javax.swing.JPanel();
         jPanelBackgroundImage = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        comboxRol = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         txtUser = new javax.swing.JTextField();
@@ -26,6 +39,7 @@ public class JfrmLoginUser extends javax.swing.JFrame {
         btnSingIn = new javax.swing.JButton();
         btnExit = new javax.swing.JButton();
         txtPassword = new javax.swing.JPasswordField();
+        comboxRol = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("👤 Login");
@@ -57,11 +71,6 @@ public class JfrmLoginUser extends javax.swing.JFrame {
         jpanelLogin.add(jLabel1);
         jLabel1.setBounds(520, 50, 120, 50);
 
-        comboxRol.setBackground(new java.awt.Color(255, 255, 255));
-        comboxRol.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Admin", "Worker" }));
-        jpanelLogin.add(comboxRol);
-        comboxRol.setBounds(520, 110, 120, 26);
-
         jLabel2.setForeground(new java.awt.Color(0, 0, 0));
         jLabel2.setText("Password:");
         jpanelLogin.add(jLabel2);
@@ -72,7 +81,7 @@ public class JfrmLoginUser extends javax.swing.JFrame {
         jpanelLogin.add(jLabel3);
         jLabel3.setBounds(430, 170, 80, 16);
         jpanelLogin.add(txtUser);
-        txtUser.setBounds(430, 190, 260, 26);
+        txtUser.setBounds(430, 190, 260, 22);
 
         btnCancel.setBackground(new java.awt.Color(255, 255, 255));
         btnCancel.setForeground(new java.awt.Color(0, 0, 0));
@@ -83,7 +92,7 @@ public class JfrmLoginUser extends javax.swing.JFrame {
             }
         });
         jpanelLogin.add(btnCancel);
-        btnCancel.setBounds(590, 330, 76, 27);
+        btnCancel.setBounds(590, 330, 72, 23);
 
         btnSingIn.setBackground(new java.awt.Color(255, 255, 255));
         btnSingIn.setForeground(new java.awt.Color(0, 0, 0));
@@ -94,7 +103,7 @@ public class JfrmLoginUser extends javax.swing.JFrame {
             }
         });
         jpanelLogin.add(btnSingIn);
-        btnSingIn.setBounds(490, 330, 76, 27);
+        btnSingIn.setBounds(490, 330, 72, 23);
 
         btnExit.setBackground(new java.awt.Color(255, 0, 0));
         btnExit.setForeground(new java.awt.Color(0, 0, 0));
@@ -107,7 +116,11 @@ public class JfrmLoginUser extends javax.swing.JFrame {
         jpanelLogin.add(btnExit);
         btnExit.setBounds(710, 30, 60, 30);
         jpanelLogin.add(txtPassword);
-        txtPassword.setBounds(430, 260, 260, 26);
+        txtPassword.setBounds(430, 260, 260, 22);
+
+        comboxRol.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jpanelLogin.add(comboxRol);
+        comboxRol.setBounds(520, 120, 100, 22);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -138,13 +151,7 @@ public class JfrmLoginUser extends javax.swing.JFrame {
     }//GEN-LAST:event_btnExitActionPerformed
 
     private void btnSingInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSingInActionPerformed
-        String user = txtUser.getText();
-        String pass = String.valueOf(txtPassword.getPassword());
-        if(user.equalsIgnoreCase("ADMIN") || pass.equalsIgnoreCase("ADMIN")){
-         JfrmHome pageJfrmHome = new JfrmHome();
-            pageJfrmHome.setVisible(true);
-            this.dispose();
-        }
+        
     }//GEN-LAST:event_btnSingInActionPerformed
 
     /**
@@ -181,7 +188,7 @@ public class JfrmLoginUser extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new JfrmLoginUser().setVisible(true);
-                
+
             }
         });
     }

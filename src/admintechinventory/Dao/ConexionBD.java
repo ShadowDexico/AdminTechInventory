@@ -8,15 +8,13 @@ public class ConexionBD {
     static String user = "root";
     static String password_BD = "1234";
     
-    public static Connection conection_BD(){
+    public static Connection getConnection(){
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection(url,user,password_BD);
-            System.out.println("se conecto en esa monda");
+            return DriverManager.getConnection(url, user, password_BD);     
         } catch (SQLException e) {
-            
-            e.printStackTrace();
+            System.out.println("Error connecting to DB: " + e.getMessage());
+            return null;
         }
-        return connection;
     }
 }
