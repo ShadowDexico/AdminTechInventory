@@ -4,7 +4,7 @@ import java.sql.*;
 import javax.swing.JOptionPane;
 
 public class ConexionBD {
-    static String url = "jdbc:mysql//localhost:3306/techinventory";
+    static String url = "jdbc:mysql://localhost/techinventory";
     static String user = "root";
     static String password_BD = "1234";
     
