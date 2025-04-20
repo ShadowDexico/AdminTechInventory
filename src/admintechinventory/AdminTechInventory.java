@@ -11,9 +11,10 @@ public class AdminTechInventory {
         Connection connection = ConexionBD.getConnection();
 
         if (connection != null) {
-            JfrmLoginUser loginView = new JfrmLoginUser();
-            new LoginController(loginView, connection);
-            loginView.setVisible(true);
+            JfrmLoginUser pageJfrmLoginUser = new JfrmLoginUser();
+            new LoginController(pageJfrmLoginUser, connection);
+            pageJfrmLoginUser.setLocationRelativeTo(null);
+            pageJfrmLoginUser.setVisible(true);
         } else {
             System.out.println("Application stopped. Could not connect to the database.");
         }

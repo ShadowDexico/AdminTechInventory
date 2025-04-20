@@ -5,12 +5,13 @@ import admintechinventory.Dao.Login.RolDao;
 import admintechinventory.Views.Login.JfrmLoginUser;
 import admintechinventory.Models.User;
 import admintechinventory.Models.Rol;
-import  admintechinventory.Views.Home.JfrmHome;
+import admintechinventory.Views.Home.JfrmHome;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
+import sun.java2d.Disposer;
 
 public class LoginController {
 
@@ -39,10 +40,10 @@ public class LoginController {
     }
 
     private void loadRoles() {
-        ArrayList<Rol> roles = roldao.getAllRoles(); 
+        ArrayList<Rol> roles = roldao.getAllRoles();
         view.getCmbRole().removeAllItems();
         for (Rol role : roles) {
-            view.getCmbRole().addItem(role.getName()); 
+            view.getCmbRole().addItem(role.getName());
         }
     }
 
@@ -57,10 +58,15 @@ public class LoginController {
 
         if (isValid) {
             JOptionPane.showMessageDialog(view, "Welcome, " + role + "!");
-            JfrmHome paginaJfrmHome = new JfrmHome();
-            
-        } 
-        else {
+            if (role.equals("Admin")) {
+                view.dispose(); 
+                JfrmHome pageJfrmHome = new JfrmHome();
+                pageJfrmHome.setLocationRelativeTo(null);
+                pageJfrmHome.setVisible(true);
+            }
+            System.out.println("Usuario conectado");
+
+        } else {
             JOptionPane.showMessageDialog(view, "Incorrect login details.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
