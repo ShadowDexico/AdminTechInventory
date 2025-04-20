@@ -5,7 +5,7 @@ import admintechinventory.Dao.Login.RolDao;
 import admintechinventory.Views.Login.JfrmLoginUser;
 import admintechinventory.Models.User;
 import admintechinventory.Models.Rol;
-
+import  admintechinventory.Views.Home.JfrmHome;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
@@ -25,7 +25,6 @@ public class LoginController {
         this.userdao = new UserDao(connection);
         this.roldao = new RolDao(connection);
         loadRoles();
-        login();
         initEvents();
 
     }
@@ -58,9 +57,11 @@ public class LoginController {
 
         if (isValid) {
             JOptionPane.showMessageDialog(view, "Welcome, " + role + "!");
-        } else {
+            JfrmHome paginaJfrmHome = new JfrmHome();
+            
+        } 
+        else {
             JOptionPane.showMessageDialog(view, "Incorrect login details.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
 }
