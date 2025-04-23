@@ -4,6 +4,8 @@ import admintechinventory.Dao.ConexionBD;
 import java.util.ArrayList;
 import admintechinventory.Models.Rol;
 import java.sql.*;
+import javax.swing.JOptionPane;
+import javax.swing.text.View;
 
 public class RolDao {
 

@@ -43,6 +43,8 @@ public class JfrmLoginUser extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("👤 Login");
+        setUndecorated(true);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jpanelLogin.setBackground(new java.awt.Color(255, 255, 255));
         jpanelLogin.setPreferredSize(new java.awt.Dimension(800, 500));
@@ -81,7 +83,7 @@ public class JfrmLoginUser extends javax.swing.JFrame {
         jpanelLogin.add(jLabel3);
         jLabel3.setBounds(430, 170, 80, 16);
         jpanelLogin.add(txtUser);
-        txtUser.setBounds(430, 190, 260, 22);
+        txtUser.setBounds(430, 190, 260, 26);
 
         btnCancel.setBackground(new java.awt.Color(255, 255, 255));
         btnCancel.setForeground(new java.awt.Color(0, 0, 0));
@@ -92,7 +94,7 @@ public class JfrmLoginUser extends javax.swing.JFrame {
             }
         });
         jpanelLogin.add(btnCancel);
-        btnCancel.setBounds(590, 330, 72, 23);
+        btnCancel.setBounds(590, 330, 76, 27);
 
         btnSingIn.setBackground(new java.awt.Color(255, 255, 255));
         btnSingIn.setForeground(new java.awt.Color(0, 0, 0));
@@ -103,7 +105,7 @@ public class JfrmLoginUser extends javax.swing.JFrame {
             }
         });
         jpanelLogin.add(btnSingIn);
-        btnSingIn.setBounds(490, 330, 72, 23);
+        btnSingIn.setBounds(490, 330, 76, 27);
 
         btnExit.setBackground(new java.awt.Color(255, 0, 0));
         btnExit.setForeground(new java.awt.Color(0, 0, 0));
@@ -114,28 +116,15 @@ public class JfrmLoginUser extends javax.swing.JFrame {
             }
         });
         jpanelLogin.add(btnExit);
-        btnExit.setBounds(710, 30, 60, 30);
+        btnExit.setBounds(740, 0, 60, 30);
         jpanelLogin.add(txtPassword);
-        txtPassword.setBounds(430, 260, 260, 22);
+        txtPassword.setBounds(430, 260, 260, 26);
 
         comboxRol.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         jpanelLogin.add(comboxRol);
-        comboxRol.setBounds(520, 120, 100, 22);
+        comboxRol.setBounds(520, 120, 100, 26);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(jpanelLogin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(jpanelLogin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
+        getContentPane().add(jpanelLogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
