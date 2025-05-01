@@ -138,6 +138,46 @@ create table RepairMaterial(
     foreign key (idMaterial) references Material(id)
 );
 
+INSERT INTO FaultType (fault) VALUES ('Pantalla rota');
+INSERT INTO FaultType (fault) VALUES ('Batería dañada');
+INSERT INTO FaultType (fault) VALUES ('Problema de software');
+INSERT INTO FaultType (fault) VALUES ('Altavoz defectuoso');
+INSERT INTO Service (service) VALUES ('Cambio de pantalla');
+INSERT INTO Service (service) VALUES ('Reemplazo de batería');
+INSERT INTO Service (service) VALUES ('Reparación de software');
+INSERT INTO Service (service) VALUES ('Reemplazo de altavoz');
+INSERT INTO Person (name, lastName, DNItype, DNI, address, telephone, mail)
+VALUES ('Juan', 'Pérez', 'CC', '12345678', 'Av. Principal 123', '3001234567', 'juan.perez@email.com');
+
+INSERT INTO Person (name, lastName, DNItype, DNI, address, telephone, mail)
+VALUES ('Maria', 'Gómez', 'CC', '87654321', 'Calle Secundaria 456', '3109876543', 'maria.gomez@email.com');
+
+INSERT INTO Person (name, lastName, DNItype, DNI, address, telephone, mail)
+VALUES ('Carlos', 'Fernández', 'CC', '11112222', 'Av. Secundaria 789', '3154446677', 'carlos.fernandez@email.com');
+INSERT INTO Client (idPerson) VALUES (1);
+INSERT INTO Client (idPerson) VALUES (2);
+INSERT INTO Client (idPerson) VALUES (3);
+INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, observation, hasSIM, hasCase, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
+VALUES ('Smartphone', 'Samsung', 'Galaxy S21', 'Pantalla rota', '2025-04-01 10:00:00', '2025-04-05 15:30:00', 200.00, 'Reemplazo completo de pantalla', TRUE, FALSE, 1, NULL, 1, NULL, NULL, 1);
+
+INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, observation, hasSIM, hasCase, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
+VALUES ('Laptop', 'Dell', 'Inspiron 15', 'Problema de software', '2025-04-02 12:15:00', '2025-04-06 16:45:00', 150.00, 'Reinstalación de sistema operativo', FALSE, FALSE, 2, NULL, 3, NULL, NULL, 3);
+
+INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, observation, hasSIM, hasCase, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
+VALUES ('Tablet', 'Apple', 'iPad Pro', 'Altavoz defectuoso', '2025-04-03 09:30:00', '2025-04-07 14:00:00', 180.00, 'Reemplazo de altavoz', FALSE, FALSE, 3, NULL, 4, NULL, NULL, 4);
+INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, observation, hasSIM, hasCase, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
+VALUES ('Smartphone', 'Apple', 'iPhone 12', 'Batería dañada', '2025-04-10 14:00:00', '2025-04-15 11:45:00', 120.00, 'Reemplazo de batería', FALSE, FALSE, 2, NULL, 2, NULL, NULL, 2);
+
+INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, observation, hasSIM, hasCase, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
+VALUES ('Laptop', 'HP', 'Pavilion', 'Pantalla rota', '2025-04-12 09:30:00', '2025-04-17 18:20:00', 220.00, 'Reemplazo de pantalla', FALSE, TRUE, 3, NULL, 1, NULL, NULL, 1);
+
+
+CALL commonfaultreport();
+CALL AverageFaultTimeReport();
+CALL FrequentCustomersReport();
+CALL RepairIncomeReport();
+
+
 delimiter //
 
 create procedure insert_Rol(`name` varchar(50))
@@ -171,10 +211,7 @@ begin
     where R.`name` = p_rol and U.`name` = p_name and U.password = p_password;
 
     select v_count as coincidencias;
-end;
-//
-
-
+end;//
 
 create procedure insertService(service varchar(100))
 begin
@@ -232,20 +269,23 @@ begin
         p_idPaymentMethods, p_idStatus
     );
 end;//
+
+
+
 -- ------------------------------------------------------------------------------------------------
 -- reportes: 
 
-create procedure ReportCommonFault()
+create procedure commonfaultreport()
 begin
     select ft.fault as 'fault type',COUNT(r.id) as 'amount'
     from Repairs r
     inner join FaultType ft on r.idFaultType = ft.id
     group by ft.fault
-    order by Cantidad desc;
+    order by amount desc;
 end;//
 
 
-create procedure ReporteTiempoPromedioPorFalla()
+create procedure AverageFaultTimeReport()
 begin
     select 
         ft.fault as FaultType,
@@ -267,19 +307,19 @@ begin
     inner join `Client` c on r.idClient = c.id
     inner join Person p on c.idPerson = p.id
     LEFT JOin Service s on r.idService = s.id
-    group by 'Client'
+    group by p.id, p.`name`, p.lastName
     order by TotalRepairs desc;
 end;//
 
-create procedure ReporteingresosPorReparacion()
+create procedure RepairIncomeReport()
 begin
     select 
-        date(r.entryDate) as 'Date',
+        date(r.entryDate) as date,
         COUNT(r.id) as QuantityRepairs,
         SUM(r.repairCost) as TotalRevenue
     from Repairs r
-    group by 'Date'
-    order by 'Date' desc;
+    group by date(r.entryDate)
+    order by date(r.entryDate) desc;
 end;//
 
 -- ------------------------------------------------------------------------------------------------

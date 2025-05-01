@@ -1,15 +1,58 @@
 package admintechinventory.Views.Home;
 
+import admintechinventory.Dao.ConexionBD;
+import admintechinventory.Dao.ReportDao;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import javax.swing.JOptionPane;
 
 public class JfrmHome extends javax.swing.JFrame {
 
+    private ReportDao reportDao = new ReportDao(ConexionBD.getConnection());
 
     public JfrmHome() {
         initComponents();
+
+        loadReportsComboBox();
+        setupComboBoxListener();
+
     }
 
+    private void loadReportsComboBox() {
+        comboxReports.removeAllItems();
+        comboxReports.addItem("Seleccione...");
+        comboxReports.addItem("Common Faults");
+        comboxReports.addItem("Time Average Faults");
+        comboxReports.addItem("Frequent Customers");
+        comboxReports.addItem("Repair Income");
+    }
+
+    private void setupComboBoxListener() {
+        comboxReports.addActionListener(e -> {
+            String selectedReport = comboxReports.getSelectedItem().toString();
+            showSelectedReport(selectedReport);
+        });
+    }
+
+    private void showSelectedReport(String reportName) {
+        switch (reportName) {
+            case "Common Faults":
+                tableReports.setModel(reportDao.getCommonFaults());
+                break;
+            case "Time Average Faults":
+                tableReports.setModel(reportDao.getTimeAverageFaults());
+                break;
+            case "Frequent Customers":
+                tableReports.setModel(reportDao.getFrequentCustomers());
+                break;
+            case "Repair Income":
+                tableReports.setModel(reportDao.getRepairIncome());
+                break;
+            default:
+                JOptionPane.showMessageDialog(this, "Select a valid report.");
+                break;
+        }
+    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -21,9 +64,9 @@ public class JfrmHome extends javax.swing.JFrame {
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel4 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
-        jComboBox3 = new javax.swing.JComboBox<>();
+        comboxReports = new javax.swing.JComboBox<>();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        tableReports = new javax.swing.JTable();
         jPanel5 = new javax.swing.JPanel();
         jTextField1 = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -101,10 +144,10 @@ public class JfrmHome extends javax.swing.JFrame {
         jLabel3.setText("jLabel3");
         jPanel4.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 40, -1, -1));
 
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jPanel4.add(jComboBox3, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 40, 240, -1));
+        comboxReports.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jPanel4.add(comboxReports, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 40, 240, -1));
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        tableReports.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -115,7 +158,7 @@ public class JfrmHome extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane3.setViewportView(jTable2);
+        jScrollPane3.setViewportView(tableReports);
 
         jPanel4.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, 880, 460));
 
@@ -252,8 +295,6 @@ public class JfrmHome extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-  
- 
     public static void main(String args[]) {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -264,13 +305,13 @@ public class JfrmHome extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> comboxReports;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JComboBox<String> jComboBox2;
-    private javax.swing.JComboBox<String> jComboBox3;
     private javax.swing.JComboBox<String> jComboBox4;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -294,7 +335,6 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable2;
     private javax.swing.JTable jTable3;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
@@ -308,5 +348,6 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JLabel lblNameEmployee1;
     private javax.swing.JLabel lblPositionEmployee;
     private javax.swing.JPanel pnlHeader;
+    private javax.swing.JTable tableReports;
     // End of variables declaration//GEN-END:variables
 }

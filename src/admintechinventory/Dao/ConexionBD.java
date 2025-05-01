@@ -6,7 +6,7 @@ import javax.swing.JOptionPane;
 public class ConexionBD {
     static String url = "jdbc:mysql://localhost/techinventory";
     static String user = "root";
-    static String password_BD = "";
+    static String password_BD = "1234";
     
     public static Connection getConnection(){
         Connection connection = null;
