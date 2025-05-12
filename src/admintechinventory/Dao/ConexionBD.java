@@ -1,12 +1,16 @@
 package admintechinventory.Dao;
 
-import java.sql.*;
-import javax.swing.JOptionPane;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
 
 public class ConexionBD {
+    
     static String url = "jdbc:mysql://localhost/techinventory";
     static String user = "root";
-    static String password_BD = "1234";
+    static String password_BD = "";
     
     public static Connection getConnection(){
         Connection connection = null;
@@ -17,4 +21,5 @@ public class ConexionBD {
             return null;
         }
     }
+    
 }

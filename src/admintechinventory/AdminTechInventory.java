@@ -6,10 +6,8 @@ import java.sql.Connection;
 import admintechinventory.Controllers.Login.LoginController;
 
 public class AdminTechInventory {
-
     public static void main(String args[]) {
         Connection connection = ConexionBD.getConnection();
-
         if (connection != null) {
             JfrmLoginUser pageJfrmLoginUser = new JfrmLoginUser();
             new LoginController(pageJfrmLoginUser, connection);
