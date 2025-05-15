@@ -1,5 +1,5 @@
 
-package admintechinventory.Dao;
+package admintechinventory.Dao.Reports;
 
 import java.sql.*;
 import javax.swing.table.DefaultTableModel;

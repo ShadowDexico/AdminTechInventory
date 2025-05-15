@@ -1,7 +1,9 @@
 package admintechinventory.Views.Home;
 
+import admintechinventory.Controllers.client.ClientController;
+import admintechinventory.Dao.Client.ClientDAO;
 import admintechinventory.Dao.ConexionBD;
-import admintechinventory.Dao.ReportDao;
+import admintechinventory.Dao.Reports.ReportDao;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import javax.swing.JOptionPane;
@@ -10,12 +12,15 @@ public class JfrmHome extends javax.swing.JFrame {
 
     private ReportDao reportDao = new ReportDao(ConexionBD.getConnection());
 
+    private ClientDAO clientDAO = new ClientDAO(ConexionBD.getConnection());
+    private ClientController clientController = new ClientController(clientDAO);
+
     public JfrmHome() {
         initComponents();
 
         loadReportsComboBox();
         setupComboBoxListener();
-
+        loadClientsTable();
     }
 
     private void loadReportsComboBox() {
@@ -54,6 +59,10 @@ public class JfrmHome extends javax.swing.JFrame {
         }
     }
 
+    private void loadClientsTable() {
+        tableClient.setModel(clientController.getClientsTableModel());
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -70,7 +79,7 @@ public class JfrmHome extends javax.swing.JFrame {
         pnlRepair = new javax.swing.JPanel();
         txtSearchClient = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tableClient = new javax.swing.JTable();
         jTextField3 = new javax.swing.JTextField();
         jTextField2 = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
@@ -244,7 +253,7 @@ public class JfrmHome extends javax.swing.JFrame {
         pnlRepair.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         pnlRepair.add(txtSearchClient, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 30, 230, -1));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tableClient.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -255,7 +264,7 @@ public class JfrmHome extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(tableClient);
 
         pnlRepair.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 70, -1, -1));
         pnlRepair.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 160, 150, -1));
@@ -947,7 +956,6 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
     private javax.swing.JTable jTable3;
     private javax.swing.JTable jTable4;
@@ -986,6 +994,7 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JPanel pnlProduct;
     private javax.swing.JPanel pnlRepair;
     private javax.swing.JPanel pnlReport;
+    private javax.swing.JTable tableClient;
     private javax.swing.JTable tableReports;
     private javax.swing.JTextField txtSearchClient;
     // End of variables declaration//GEN-END:variables
