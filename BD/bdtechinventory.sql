@@ -171,20 +171,17 @@ VALUES ('Smartphone', 'Apple', 'iPhone 12', 'Batería dañada', '2025-04-10 14:0
 INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, observation, hasSIM, hasCase, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
 VALUES ('Laptop', 'HP', 'Pavilion', 'Pantalla rota', '2025-04-12 09:30:00', '2025-04-17 18:20:00', 220.00, 'Reemplazo de pantalla', FALSE, TRUE, 3, NULL, 1, NULL, NULL, 1);
 
-
-CALL commonfaultreport();
-CALL AverageFaultTimeReport();
-CALL FrequentCustomersReport();
-CALL RepairIncomeReport();
-
+-- CALL commonfaultreport();
+-- CALL AverageFaultTimeReport();
+-- CALL FrequentCustomersReport();
+-- CALL RepairIncomeReport();
 
 delimiter //
 
 create procedure insert_Rol(`name` varchar(50))
 begin
     insert into Rol(`name`) values (`name`);
-end;
-//
+end;//
 call insert_Rol ('Admin');//
 call insert_Rol ('Staff');//
 
@@ -357,8 +354,6 @@ begin
     inner join `Client` on Person.id = `Client`.idPerson;
 end;//
 
-
-
 CREATE PROCEDURE AddSupplier(
     in p_companyName VARCHAR(50),
     in p_supplierType VARCHAR(50),
@@ -426,3 +421,13 @@ BEGin
     insert into Warehouse(stock, amount, salePrice, idProducts)
     values (p_stock, p_amount, p_salePrice, p_idProducts);
     end;//
+
+
+--  triggers -------------------------------------------------------
+
+CREATE TRIGGER after_insert_person
+AFTER INSERT ON Person
+FOR EACH ROW
+BEGIN
+    INSERT INTO `Client`(idPerson) VALUES (NEW.id);
+END;//
