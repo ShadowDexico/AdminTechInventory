@@ -21,7 +21,8 @@ create table Person(
     DNI varchar(20) not null unique,
     address varchar(50) not null, 
     telephone varchar(20) not null,
-    mail varchar(70) unique
+    mail varchar(70) unique,
+    registrationdate datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 create table PaymentMethods(
     id int primary key auto_increment,
@@ -64,6 +65,7 @@ create table Material(
     materialType varchar(50) not null,
     materialName varchar(50) not null,
     purchaseCost decimal(10,2) not null,
+    purchaseDate datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     idSupplier int,
     foreign key (idSupplier) references Supplier(id)
 );
@@ -73,7 +75,7 @@ create table Products(
     productName varchar(50) not null,
     `description` varchar(100) not null,
     purchasePrice decimal(10,2) not null,
-    purchaseDate datetime not null,
+    purchaseDate datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     idSupplier int,
     foreign key (idSupplier) references Supplier(id)
 );
@@ -82,12 +84,13 @@ create table Warehouse(
     stock int not null,
     amount int not null,
     salePrice decimal(10,2) not null,
+    storageDate datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     idProducts int,
     foreign key (idProducts) references Products(id)
 );
 create table Sale(
     id int primary key auto_increment,
-    saleDate datetime not null,
+    saleDate datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     idProducts int,
     idPaymentMethods int,
     foreign key (idProducts) references Products(id),
@@ -110,8 +113,8 @@ CREATE TABLE Repairs (
     mark varchar(50) NOT NULL,
     model varchar(20) NOT NULL,
     faultDescription TEXT NOT NULL,
-    entryDate DATETIME NOT NULL,
-    deliveryDate DATETIME NOT NULL,
+    entryDate datetime DEFAULT CURRENT_TIMESTAMP,
+    deliveryDate datetime DEFAULT CURRENT_TIMESTAMP,
     repairCost DOUBLE NOT NULL,
     observation TEXT NOT NULL,
     hasSIM BOOLEAN NOT NULL DEFAULT FALSE,
@@ -272,52 +275,60 @@ end;//
 -- ------------------------------------------------------------------------------------------------
 -- reportes: 
 
-create procedure commonfaultreport()
-begin
-    select ft.fault as 'fault type',COUNT(r.id) as 'amount'
-    from Repairs r
-    inner join FaultType ft on r.idFaultType = ft.id
-    group by ft.fault
-    order by amount desc;
-end;//
+CREATE PROCEDURE commonfaultreport()
+BEGIN
+    SELECT 
+        ft.fault AS 'fault type',
+        COUNT(r.id) AS 'amount',
+        MIN(r.entryDate) AS 'first occurrence',
+        MAX(r.entryDate) AS 'latest occurrence'
+    FROM Repairs r
+    INNER JOIN FaultType ft ON r.idFaultType = ft.id
+    GROUP BY ft.fault
+    ORDER BY amount DESC;
+END;//
 
 
-create procedure AverageFaultTimeReport()
-begin
-    select 
-        ft.fault as FaultType,
-        avg(timestampdiff(hour, r.entryDate, r.deliveryDate)) as AverageHours
-    from Repairs r
-    inner join FaultType ft on r.idFaultType = ft.id
-    group by ft.fault
-	order by AverageHours desc;
-end;//
+CREATE PROCEDURE AverageFaultTimeReport()
+BEGIN
+    SELECT 
+        ft.fault AS FaultType,
+        AVG(TIMESTAMPDIFF(HOUR, r.entryDate, r.deliveryDate)) AS AverageHours,
+        MIN(r.entryDate) AS 'earliest repair',
+        MAX(r.entryDate) AS 'latest repair'
+    FROM Repairs r
+    INNER JOIN FaultType ft ON r.idFaultType = ft.id
+    GROUP BY ft.fault
+    ORDER BY AverageHours DESC;
+END;//
 
 
-create procedure FrequentCustomersReport()
-begin
-    select 
-        CONCAT(p.`name`, ' ', p.lastName) as 'Client',
-        COUNT(r.id) as TotalRepairs,
-        GROUP_CONCAT(distinct s.service separator ', ') as RequestedServices
-    from Repairs r
-    inner join `Client` c on r.idClient = c.id
-    inner join Person p on c.idPerson = p.id
-    LEFT JOin Service s on r.idService = s.id
-    group by p.id, p.`name`, p.lastName
-    order by TotalRepairs desc;
-end;//
+CREATE PROCEDURE FrequentCustomersReport()
+BEGIN
+    SELECT 
+        CONCAT(p.`name`, ' ', p.lastName) AS 'Client',
+        COUNT(r.id) AS TotalRepairs,
+        GROUP_CONCAT(DISTINCT s.service SEPARATOR ', ') AS RequestedServices,
+        MIN(r.entryDate) AS 'first repair',
+        MAX(r.entryDate) AS 'latest repair'
+    FROM Repairs r
+    INNER JOIN `Client` c ON r.idClient = c.id
+    INNER JOIN Person p ON c.idPerson = p.id
+    LEFT JOIN Service s ON r.idService = s.id
+    GROUP BY p.id, p.`name`, p.lastName
+    ORDER BY TotalRepairs DESC;
+END;//
 
-create procedure RepairIncomeReport()
-begin
-    select 
-        date(r.entryDate) as date,
-        COUNT(r.id) as QuantityRepairs,
-        SUM(r.repairCost) as TotalRevenue
-    from Repairs r
-    group by date(r.entryDate)
-    order by date(r.entryDate) desc;
-end;//
+CREATE PROCEDURE RepairIncomeReport()
+BEGIN
+    SELECT 
+        DATE(r.entryDate) AS 'repair date',
+        COUNT(r.id) AS QuantityRepairs,
+        SUM(r.repairCost) AS TotalRevenue
+    FROM Repairs r
+    GROUP BY DATE(r.entryDate)
+    ORDER BY DATE(r.entryDate) DESC;
+END;//
 
 -- ------------------------------------------------------------------------------------------------
 
