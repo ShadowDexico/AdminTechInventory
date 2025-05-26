@@ -6,19 +6,21 @@ import admintechinventory.Controllers.repairs.ServiceController;
 import admintechinventory.Dao.Client.ClientDAO;
 import admintechinventory.Dao.ConexionBD;
 import admintechinventory.Dao.Reports.ReportDao;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.List;
 import javax.swing.JOptionPane;
 
 public class JfrmHome extends javax.swing.JFrame {
 
     private ReportDao reportDao = new ReportDao(ConexionBD.getConnection());
-
     private ClientDAO clientDAO = new ClientDAO(ConexionBD.getConnection());
     private ClientController clientController = new ClientController(clientDAO);
     private ServiceController serviceC = new ServiceController();
     private PaymentMethodController paymentMethod = new PaymentMethodController();
+
+    private int selectedClientId = -1;
 
     public JfrmHome() {
         initComponents();
@@ -28,6 +30,7 @@ public class JfrmHome extends javax.swing.JFrame {
         loadClientsTable();
         loadServices();
         loadPaymentMethod();
+        setupClientTableClick();
 
     }
 
@@ -71,8 +74,96 @@ public class JfrmHome extends javax.swing.JFrame {
         tableClient.setModel(clientController.getClientsTableModel());
     }
 
+    private void setupClientTableClick() {
+        tableClient.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = tableClient.getSelectedRow();
+                if (selectedRow >= 0) {
+                    try {
+                        selectedClientId = Integer.parseInt(tableClient.getValueAt(selectedRow, 0).toString());
+                        JOptionPane.showMessageDialog(this, "Cliente seleccionado: " + selectedClientId);
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(this, "Error: ID de cliente inválido.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                    }
+                }
+            }
+        });
+        btnRepairPhone.addActionListener(e -> {
+            if (selectedClientId == -1) {
+                JOptionPane.showMessageDialog(this, "Por favor seleccione un cliente antes de reparar.", "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                insertRepair(selectedClientId);
+            }
+        });
+    }
+
+    private int callGetServiceId(String serviceName) {
+        try (Connection conn = ConexionBD.getConnection(); CallableStatement stmt = conn.prepareCall("CALL getServiceIdByName(?)")) {
+            stmt.setString(1, serviceName);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            System.out.println("Error calling getServiceIdByName: " + e.getMessage());
+        }
+        return -1;
+    }
+
+    private int callGetPaymentMethodId(String methodName) {
+        try (Connection conn = ConexionBD.getConnection(); CallableStatement stmt = conn.prepareCall("CALL getPaymentMethodIdByName(?)")) {
+            stmt.setString(1, methodName);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            System.out.println("Error calling getPaymentMethodIdByName: " + e.getMessage());
+        }
+        return -1;
+    }
+
+    private void insertRepair(int clientId) {
+        String device = txtDevice.getText();
+        String brand = txtBrand.getText();
+        String model = txtModel.getText();
+        String faultDesc = txtaFaultDescription.getText();
+        java.util.Date delivery = dcDeliveryDate.getDate();
+        double cost = Double.parseDouble(txtRepairCost.getText());
+
+        String serviceName = comboxService.getSelectedItem().toString();
+        String methodName = comboxPaymentMethod.getSelectedItem().toString();
+
+        int idService = callGetServiceId(serviceName);
+        int idPaymentMethod = callGetPaymentMethodId(methodName);
+        int idMaterial = 1;
+        int idFaultType = 1;
+        int idStatus = 1;
+
+        try (Connection conn = ConexionBD.getConnection(); CallableStatement stmt = conn.prepareCall("CALL insertRepair(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");) {
+            stmt.setString(1, device);
+            stmt.setString(2, brand);
+            stmt.setString(3, model);
+            stmt.setString(4, faultDesc);
+            stmt.setTimestamp(5, new java.sql.Timestamp(delivery.getTime()));
+            stmt.setDouble(6, cost);
+            stmt.setInt(7, clientId);
+            stmt.setInt(8, idMaterial);
+            stmt.setInt(9, idFaultType);
+            stmt.setInt(10, idPaymentMethod);
+            stmt.setInt(11, idStatus);
+            stmt.setInt(12, idService);
+            stmt.execute();
+            JOptionPane.showMessageDialog(this, "Repair registered successfully.");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error inserting repair: " + ex.getMessage());
+        }
+    }
+
     public void adminControllers() {
         comboxReports.setEnabled(false);
+        jTabbedPane1.setEnabledAt(0, false);
+        jTabbedPane1.setSelectedIndex(1);
     }
 
     private void loadServices() {
@@ -129,27 +220,27 @@ public class JfrmHome extends javax.swing.JFrame {
         txtSearchClient = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         tableClient = new javax.swing.JTable();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
+        txtRepairCost = new javax.swing.JTextField();
+        txtDevice = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         comboxService = new javax.swing.JComboBox<>();
         comboxPaymentMethod = new javax.swing.JComboBox<>();
-        jTextField4 = new javax.swing.JTextField();
+        txtBrand = new javax.swing.JTextField();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        txtaFaultDescription = new javax.swing.JTextArea();
         btnGetClient = new javax.swing.JButton();
         jLabel13 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
+        btnRepairPhone = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
+        brnClear = new javax.swing.JButton();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
-        jTextField15 = new javax.swing.JTextField();
+        txtModel = new javax.swing.JTextField();
         jLabel18 = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
         jLabel21 = new javax.swing.JLabel();
-        jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        dcDeliveryDate = new com.toedter.calendar.JDateChooser();
         jLabel22 = new javax.swing.JLabel();
         pnlProduct = new javax.swing.JPanel();
         cbxTypeProduct = new javax.swing.JComboBox<>();
@@ -321,8 +412,8 @@ public class JfrmHome extends javax.swing.JFrame {
         jScrollPane1.setViewportView(tableClient);
 
         pnlRepair.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 70, -1, -1));
-        pnlRepair.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 190, 150, -1));
-        pnlRepair.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 130, 150, -1));
+        pnlRepair.add(txtRepairCost, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 190, 150, -1));
+        pnlRepair.add(txtDevice, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 130, 150, -1));
 
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setText("Phone Model:");
@@ -337,11 +428,11 @@ public class JfrmHome extends javax.swing.JFrame {
 
         comboxPaymentMethod.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         pnlRepair.add(comboxPaymentMethod, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 240, 150, -1));
-        pnlRepair.add(jTextField4, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 130, 150, -1));
+        pnlRepair.add(txtBrand, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 130, 150, -1));
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane2.setViewportView(jTextArea1);
+        txtaFaultDescription.setColumns(20);
+        txtaFaultDescription.setRows(5);
+        jScrollPane2.setViewportView(txtaFaultDescription);
 
         pnlRepair.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 310, 380, 180));
 
@@ -354,18 +445,18 @@ public class JfrmHome extends javax.swing.JFrame {
         jLabel13.setText("Add repair");
         pnlRepair.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 40, 130, 40));
 
-        jButton2.setForeground(new java.awt.Color(0, 0, 0));
-        jButton2.setText("Repair phone");
-        pnlRepair.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 510, 130, 40));
+        btnRepairPhone.setForeground(new java.awt.Color(0, 0, 0));
+        btnRepairPhone.setText("Repair phone");
+        pnlRepair.add(btnRepairPhone, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 510, 130, 40));
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Search client:");
         pnlRepair.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 30, -1, -1));
 
-        jButton3.setForeground(new java.awt.Color(0, 0, 0));
-        jButton3.setText("Clear request");
-        pnlRepair.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 510, 130, 40));
+        brnClear.setForeground(new java.awt.Color(0, 0, 0));
+        brnClear.setText("Clear request");
+        pnlRepair.add(brnClear, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 510, 130, 40));
 
         jLabel15.setForeground(new java.awt.Color(255, 255, 255));
         jLabel15.setText("Repair cost");
@@ -374,7 +465,7 @@ public class JfrmHome extends javax.swing.JFrame {
         jLabel16.setForeground(new java.awt.Color(255, 255, 255));
         jLabel16.setText("Device:");
         pnlRepair.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 110, -1, -1));
-        pnlRepair.add(jTextField15, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 130, 150, -1));
+        pnlRepair.add(txtModel, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 130, 150, -1));
 
         jLabel18.setForeground(new java.awt.Color(255, 255, 255));
         jLabel18.setText("Phone brand:");
@@ -387,7 +478,7 @@ public class JfrmHome extends javax.swing.JFrame {
         jLabel21.setForeground(new java.awt.Color(255, 255, 255));
         jLabel21.setText("Delivery date");
         pnlRepair.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 170, -1, -1));
-        pnlRepair.add(jDateChooser1, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 190, 150, -1));
+        pnlRepair.add(dcDeliveryDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 190, 150, -1));
 
         jLabel22.setForeground(new java.awt.Color(255, 255, 255));
         jLabel22.setText("Payment method:");
@@ -950,7 +1041,9 @@ public class JfrmHome extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton brnClear;
     private javax.swing.JButton btnGetClient;
+    private javax.swing.JButton btnRepairPhone;
     private javax.swing.JComboBox<String> cbxTypeProduct;
     private javax.swing.JComboBox<String> cbxTypeProduct1;
     private javax.swing.JComboBox<String> cbxTypeProduct2;
@@ -959,13 +1052,12 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> comboxPaymentMethod;
     private javax.swing.JComboBox<String> comboxReports;
     private javax.swing.JComboBox<String> comboxService;
+    private com.toedter.calendar.JDateChooser dcDeliveryDate;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
     private javax.swing.JButton jButton12;
     private javax.swing.JButton jButton13;
     private javax.swing.JButton jButton14;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
@@ -974,7 +1066,6 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JButton jButton9;
     private javax.swing.JComboBox<String> jComboBox3;
     private javax.swing.JComboBox<String> jComboBox4;
-    private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
@@ -1026,7 +1117,6 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JTable jTable2;
     private javax.swing.JTable jTable3;
     private javax.swing.JTable jTable4;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextArea jTextArea2;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField10;
@@ -1034,20 +1124,16 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField12;
     private javax.swing.JTextField jTextField13;
     private javax.swing.JTextField jTextField14;
-    private javax.swing.JTextField jTextField15;
     private javax.swing.JTextField jTextField16;
     private javax.swing.JTextField jTextField17;
     private javax.swing.JTextField jTextField18;
     private javax.swing.JTextField jTextField19;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField21;
     private javax.swing.JTextField jTextField22;
     private javax.swing.JTextField jTextField24;
     private javax.swing.JTextField jTextField25;
     private javax.swing.JTextField jTextField26;
     private javax.swing.JTextField jTextField27;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField6;
     private javax.swing.JTextField jTextField7;
     private javax.swing.JTextField jTextField8;
@@ -1063,6 +1149,11 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JPanel pnlReport;
     private javax.swing.JTable tableClient;
     private javax.swing.JTable tableReports;
+    private javax.swing.JTextField txtBrand;
+    private javax.swing.JTextField txtDevice;
+    private javax.swing.JTextField txtModel;
+    private javax.swing.JTextField txtRepairCost;
     private javax.swing.JTextField txtSearchClient;
+    private javax.swing.JTextArea txtaFaultDescription;
     // End of variables declaration//GEN-END:variables
 }

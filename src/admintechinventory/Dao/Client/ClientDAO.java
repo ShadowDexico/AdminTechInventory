@@ -21,6 +21,7 @@ public class ClientDAO {
         }
 
         try (CallableStatement stmt = connection.prepareCall("{CALL showclient()}"); ResultSet rs = stmt.executeQuery()) {
+            model.addColumn("Client ID");
             model.addColumn("Name");
             model.addColumn("Last ,ame");
             model.addColumn("DNI type");
@@ -32,6 +33,7 @@ public class ClientDAO {
 
             while (rs.next()) {
                 model.addRow(new Object[]{
+                    rs.getInt("Client ID"),
                     rs.getString("Name"),
                     rs.getString("Last name"),
                     rs.getString("DNI type"),
@@ -48,5 +50,4 @@ public class ClientDAO {
 
         return model;
     }
-
 }

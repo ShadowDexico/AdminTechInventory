@@ -51,8 +51,6 @@ public class LoginController {
 
             view.dispose();
             JfrmHome pageJfrmHome = new JfrmHome();
-
-            // Si es trabajador, aplicamos restricciones
             if (role.equalsIgnoreCase("Staff")) {
                 pageJfrmHome.adminControllers();
             }
