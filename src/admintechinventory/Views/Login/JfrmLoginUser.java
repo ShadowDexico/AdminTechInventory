@@ -8,10 +8,6 @@ public class JfrmLoginUser extends javax.swing.JFrame {
     public JfrmLoginUser() {
         initComponents();
     }
-
-    public JComboBox<String> getCmbRole() {
-        return comboxRol;
-    }
     
     public JTextField getTxtUsername() {
         return txtUser;
@@ -39,7 +35,6 @@ public class JfrmLoginUser extends javax.swing.JFrame {
         btnSingIn = new javax.swing.JButton();
         btnExit = new javax.swing.JButton();
         txtPassword = new javax.swing.JPasswordField();
-        comboxRol = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("👤 Login");
@@ -83,7 +78,7 @@ public class JfrmLoginUser extends javax.swing.JFrame {
         jpanelLogin.add(jLabel3);
         jLabel3.setBounds(430, 170, 80, 16);
         jpanelLogin.add(txtUser);
-        txtUser.setBounds(430, 190, 260, 26);
+        txtUser.setBounds(430, 190, 260, 22);
 
         btnCancel.setBackground(new java.awt.Color(255, 255, 255));
         btnCancel.setForeground(new java.awt.Color(0, 0, 0));
@@ -94,7 +89,7 @@ public class JfrmLoginUser extends javax.swing.JFrame {
             }
         });
         jpanelLogin.add(btnCancel);
-        btnCancel.setBounds(590, 330, 76, 27);
+        btnCancel.setBounds(590, 330, 72, 23);
 
         btnSingIn.setBackground(new java.awt.Color(255, 255, 255));
         btnSingIn.setForeground(new java.awt.Color(0, 0, 0));
@@ -105,7 +100,7 @@ public class JfrmLoginUser extends javax.swing.JFrame {
             }
         });
         jpanelLogin.add(btnSingIn);
-        btnSingIn.setBounds(490, 330, 76, 27);
+        btnSingIn.setBounds(490, 330, 72, 23);
 
         btnExit.setBackground(new java.awt.Color(255, 0, 0));
         btnExit.setForeground(new java.awt.Color(0, 0, 0));
@@ -118,11 +113,7 @@ public class JfrmLoginUser extends javax.swing.JFrame {
         jpanelLogin.add(btnExit);
         btnExit.setBounds(740, 0, 60, 30);
         jpanelLogin.add(txtPassword);
-        txtPassword.setBounds(430, 260, 260, 26);
-
-        comboxRol.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jpanelLogin.add(comboxRol);
-        comboxRol.setBounds(520, 120, 100, 26);
+        txtPassword.setBounds(430, 260, 260, 22);
 
         getContentPane().add(jpanelLogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, -1));
 
@@ -186,7 +177,6 @@ public class JfrmLoginUser extends javax.swing.JFrame {
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnExit;
     private javax.swing.JButton btnSingIn;
-    private javax.swing.JComboBox<String> comboxRol;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

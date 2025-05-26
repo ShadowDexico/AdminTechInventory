@@ -174,7 +174,7 @@ VALUES ('Smartphone', 'Apple', 'iPhone 12', 'Batería dañada', '2025-04-10 14:0
 INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, observation, hasSIM, hasCase, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
 VALUES ('Laptop', 'HP', 'Pavilion', 'Pantalla rota', '2025-04-12 09:30:00', '2025-04-17 18:20:00', 220.00, 'Reemplazo de pantalla', FALSE, TRUE, 3, NULL, 1, NULL, NULL, 1);
 
--- CALL commonfaultreport();
+CALL commonfaultreport();
 -- CALL AverageFaultTimeReport();
 -- CALL FrequentCustomersReport();
 -- CALL RepairIncomeReport();
@@ -196,22 +196,20 @@ end;//
 call insert_Users('admin','admin',1);//
 call insert_Users('staff','staff',2);//
 
--- para el combo box de roles
-create procedure ViewRols()
-begin
-    select id, `name` from Rol;
-end;//
 
-create procedure Login(p_rol varchar(50),  p_name varchar(50), p_password varchar(100))
-begin
-    declare v_count int default 0;
-    select COUNT(*) into v_count
-    from Users U
-    join Rol R on U.idRol = R.id
-    where R.`name` = p_rol and U.`name` = p_name and U.password = p_password;
-
-    select v_count as coincidencias;
-end;//
+DROP PROCEDURE IF EXISTS Login;//
+CREATE PROCEDURE Login(IN p_name VARCHAR(50), IN p_password VARCHAR(100))
+BEGIN
+    SELECT 	
+        u.name AS username, 
+        u.password, 
+        r.name AS role,
+        r.id AS idRol
+    FROM Users u
+    JOIN Rol r ON u.idRol = r.id
+    WHERE u.name = p_name AND u.password = p_password
+    LIMIT 1;
+END;//
 
 create procedure insertService(service varchar(100))
 begin

@@ -21,6 +21,7 @@ public class JfrmHome extends javax.swing.JFrame {
         loadReportsComboBox();
         setupComboBoxListener();
         loadClientsTable();
+        
     }
 
     private void loadReportsComboBox() {
@@ -61,6 +62,10 @@ public class JfrmHome extends javax.swing.JFrame {
 
     private void loadClientsTable() {
         tableClient.setModel(clientController.getClientsTableModel());
+    }
+    
+    public void adminControllers(){
+        comboxReports.setEnabled(false);
     }
 
     @SuppressWarnings("unchecked")
