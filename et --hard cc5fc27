@@ -1,0 +1,19 @@
+[33mc11ce98[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Agregue funcionalidad a los combox de la seccion repairs desde la base de datos
+[33m641126d[m Cambios a la tabla repairs y a varios procedimientos almacenados
+[33mcc5fc27[m agregue la libreria absoluteLayaout en la carpeta librerias, tambien modifique el codigo de la clase ReportDao para agregar nuevas colunmas que concordaran con las modificaciones de la base de datos
+[33m01afc1d[m modifique las tablas person, material, products, warehouse, sale y repairs para agregarle los tipos de texto datetime. tambien modifique los procedimiento almacenados de los reportes agregandole nuevas columnas
+[33m461b0e5[m Agregar Trigger para la tabla person para guardar nuevos registros de este
+[33m0798d04[m Crear la funcionalidad de ver la tabla de clientes en la seccion de reparaciones cumpliendo el MVC
+[33mf23d118[m interfaces listas
+[33mdf7721a[m Reflejar la tabla de reportes en la seccion de home por parte del administrador
+[33mae7e10f[m Agregue más vistas
+[33m1b8d825[m Quite el metodo login del constructor controler
+[33m45ec2a0[m Quite el metodo login del constructor controler
+[33m30bbc9b[m Merge pull request #2 from ShadowDexico/rama-para-ver-los-verdaderos-cambios
+[33maf3b5e1[m[33m ([m[1;31morigin/rama-para-ver-los-verdaderos-cambios[m[33m)[m cambios a la base de datos 2.0
+[33mcb34029[m cambios a la URL para iniciar correctamente
+[33m43b0e57[m Merge pull request #1 from ShadowDexico/rama-para-ver-los-verdaderos-cambios
+[33m37f92b0[m cambios de la rama
+[33ma04cfa6[m Conexion a bd y funcionalidad del login
+[33m32153c8[m Base de datos actualizada
+[33mc627367[m Se agrego el proyecto
