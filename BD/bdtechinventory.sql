@@ -108,20 +108,20 @@ create table SaleDetail(
     foreign key (idClient) references `Client`(id)
 );
 CREATE TABLE Repairs (
-    id inT PRIMARY KEY AUTO_inCREMENT,
-    device varchar(50) NOT NULL,
-    mark varchar(50) NOT NULL,
-    model varchar(20) NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    device VARCHAR(50) NOT NULL,
+    brand VARCHAR(50) NOT NULL,
+    model VARCHAR(20) NOT NULL,
     faultDescription TEXT NOT NULL,
-    entryDate datetime DEFAULT CURRENT_TIMESTAMP,
-    deliveryDate datetime DEFAULT CURRENT_TIMESTAMP,
+    entryDate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deliveryDate DATETIME,
     repairCost DOUBLE NOT NULL,
-    idClient inT,
-    idMaterial inT,
-    idFaultType inT,
-    idPaymentMethods inT,
-    idStatus inT,
-    idService inT,
+    idClient INT,
+    idMaterial INT,
+    idFaultType INT,
+    idPaymentMethods INT,
+    idStatus INT,
+    idService INT,
     FOREIGN KEY (idClient) REFERENCES Client(id),
     FOREIGN KEY (idMaterial) REFERENCES Material(id),
     FOREIGN KEY (idFaultType) REFERENCES FaultType(id),
@@ -158,25 +158,30 @@ VALUES ('Carlos', 'Fernández', 'CC', '11112222', 'Av. Secundaria 789', '3154446
 INSERT INTO Client (idPerson) VALUES (1);
 INSERT INTO Client (idPerson) VALUES (2);
 INSERT INTO Client (idPerson) VALUES (3);
-INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
+INSERT INTO Repairs (device, brand, model, faultDescription, entryDate, deliveryDate, repairCost, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
 VALUES ('Smartphone', 'Samsung', 'Galaxy S21', 'Pantalla rota', '2025-04-01 10:00:00', '2025-04-05 15:30:00', 200.00, 1, NULL, 1, NULL, NULL, 1);
 
-INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost,idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
+INSERT INTO Repairs (device, brand, model, faultDescription, entryDate, deliveryDate, repairCost,idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
 VALUES ('Laptop', 'Dell', 'Inspiron 15', 'Problema de software', '2025-04-02 12:15:00', '2025-04-06 16:45:00', 150.00,2, NULL, 3, NULL, NULL, 3);
 
-INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
+INSERT INTO Repairs (device, brand, model, faultDescription, entryDate, deliveryDate, repairCost, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
 VALUES ('Tablet', 'Apple', 'iPad Pro', 'Altavoz defectuoso', '2025-04-03 09:30:00', '2025-04-07 14:00:00', 180.00, 3, NULL, 4, NULL, NULL, 4);
-INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
+INSERT INTO Repairs (device, brand, model, faultDescription, entryDate, deliveryDate, repairCost, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
 VALUES ('Smartphone', 'Apple', 'iPhone 12', 'Batería dañada', '2025-04-10 14:00:00', '2025-04-15 11:45:00', 120.00, 2, NULL, 2, NULL, NULL, 2);
 
-INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
+INSERT INTO Repairs (device, brand, model, faultDescription, entryDate, deliveryDate, repairCost, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
 VALUES ('Laptop', 'HP', 'Pavilion', 'Pantalla rota', '2025-04-12 09:30:00', '2025-04-17 18:20:00', 220.00, 3, NULL, 1, NULL, NULL, 1);
 
+INSERT INTO `Status` (name) VALUES 
+('Pending'), 
+('In progress'), 
+('Repaired');
+
+select * from `Status`;
 -- CALL commonfaultreport();
 -- CALL AverageFaultTimeReport();
 -- CALL FrequentCustomersReport();
 -- CALL RepairIncomeReport();
-
 delimiter //
 
 create procedure insert_Rol(`name` varchar(50))
@@ -243,35 +248,30 @@ BEGIN
 END;//
 
 -- para insertar reparaciones
-create procedure setRepair(
-    in p_device varchar(50),
-    in p_mark varchar(50),
-    in p_model varchar(20),
-    in p_faultDescription text,
-    in p_entryDate datetime,
-    in p_deliveryDate datetime,
-    in p_repairCost double,
-    in p_idClient int,
-    in p_idMaterial int,
-    in p_idFaultType int,
-    in p_idPaymentMethods int,
-    in p_idStatus int
+CREATE PROCEDURE insertRepair(
+    IN p_device VARCHAR(50),
+    IN p_brand VARCHAR(50),
+    IN p_model VARCHAR(20),
+    IN p_faultDescription TEXT,
+    IN p_deliveryDate DATETIME,
+    IN p_repairCost DOUBLE,
+    IN p_idClient INT,
+    IN p_idMaterial INT,
+    IN p_idFaultType INT,
+    IN p_idPaymentMethods INT,
+    IN p_idStatus INT,
+    IN p_idService INT
 )
-begin
-    insert into Repairs (
-        device, mark, model, faultDescription,
-        entryDate, deliveryDate, repairCost,
-        idClient, idMaterial, idFaultType,
-        idPaymentMethods, idStatus
-    )
-    values (
-        p_device, p_mark, p_model, p_faultDescription,
-        p_entryDate, p_deliveryDate, p_repairCost,
-        p_idClient, p_idMaterial, p_idFaultType,
-        p_idPaymentMethods, p_idStatus
+BEGIN
+    INSERT INTO Repairs (
+        device, brand, model, faultDescription, entryDate, deliveryDate, repairCost, 
+        idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService
+    ) 
+    VALUES (
+        p_device, p_brand, p_model, p_faultDescription, NOW(), p_deliveryDate, p_repairCost,
+        p_idClient, p_idMaterial, p_idFaultType, p_idPaymentMethods, p_idStatus, p_idService
     );
-end;//
-
+END;//
 
 
 -- ------------------------------------------------------------------------------------------------
