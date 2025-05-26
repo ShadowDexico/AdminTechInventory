@@ -1,11 +1,14 @@
 package admintechinventory.Views.Home;
 
 import admintechinventory.Controllers.client.ClientController;
+import admintechinventory.Controllers.repairs.PaymentMethodController;
+import admintechinventory.Controllers.repairs.ServiceController;
 import admintechinventory.Dao.Client.ClientDAO;
 import admintechinventory.Dao.ConexionBD;
 import admintechinventory.Dao.Reports.ReportDao;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import javax.swing.JOptionPane;
 
 public class JfrmHome extends javax.swing.JFrame {
@@ -14,6 +17,8 @@ public class JfrmHome extends javax.swing.JFrame {
 
     private ClientDAO clientDAO = new ClientDAO(ConexionBD.getConnection());
     private ClientController clientController = new ClientController(clientDAO);
+    private ServiceController serviceC = new ServiceController();
+    private PaymentMethodController paymentMethod = new PaymentMethodController();
 
     public JfrmHome() {
         initComponents();
@@ -21,7 +26,9 @@ public class JfrmHome extends javax.swing.JFrame {
         loadReportsComboBox();
         setupComboBoxListener();
         loadClientsTable();
-        
+        loadServices();
+        loadPaymentMethod();
+
     }
 
     private void loadReportsComboBox() {
@@ -63,9 +70,45 @@ public class JfrmHome extends javax.swing.JFrame {
     private void loadClientsTable() {
         tableClient.setModel(clientController.getClientsTableModel());
     }
-    
-    public void adminControllers(){
+
+    public void adminControllers() {
         comboxReports.setEnabled(false);
+    }
+
+    private void loadServices() {
+        comboxService.removeAllItems();
+        comboxService.addItem("Select to service...");
+
+        List<String> services = serviceC.getServices();
+        for (String service : services) {
+            comboxService.addItem(service);
+        }
+        comboxService.addItemListener(e -> {
+            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+                if (comboxService.getSelectedItem().equals("Select to service...")) {
+                    JOptionPane.showMessageDialog(this, "Select a valid service.");
+                    comboxService.setSelectedIndex(1);
+                }
+            }
+        });
+    }
+
+    private void loadPaymentMethod() {
+        comboxPaymentMethod.removeAllItems();
+        comboxPaymentMethod.addItem("Select to payment method...");
+
+        List<String> methods = paymentMethod.getPaymentMethod();
+        for (String method : methods) {
+            comboxPaymentMethod.addItem(method);
+        }
+        comboxPaymentMethod.addItemListener(e -> {
+            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+                if (comboxPaymentMethod.getSelectedItem().equals("Select to payment method...")) {
+                    JOptionPane.showMessageDialog(this, "Select a valid payment method.");
+                    comboxPaymentMethod.setSelectedIndex(1);
+                }
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -89,9 +132,9 @@ public class JfrmHome extends javax.swing.JFrame {
         jTextField2 = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        comboxService = new javax.swing.JComboBox<>();
         jLabel10 = new javax.swing.JLabel();
-        jComboBox2 = new javax.swing.JComboBox<>();
+        comboxPaymentMethod = new javax.swing.JComboBox<>();
         jTextField4 = new javax.swing.JTextField();
         jTextField5 = new javax.swing.JTextField();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -283,15 +326,15 @@ public class JfrmHome extends javax.swing.JFrame {
         jLabel9.setText("Type service:");
         pnlRepair.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 200, -1, -1));
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        pnlRepair.add(jComboBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 220, 150, -1));
+        comboxService.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        pnlRepair.add(comboxService, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 220, 150, -1));
 
         jLabel10.setForeground(new java.awt.Color(255, 255, 255));
         jLabel10.setText("Payment method:");
         pnlRepair.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 200, -1, -1));
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        pnlRepair.add(jComboBox2, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 220, 150, -1));
+        comboxPaymentMethod.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        pnlRepair.add(comboxPaymentMethod, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 220, 150, -1));
         pnlRepair.add(jTextField4, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 100, 150, -1));
         pnlRepair.add(jTextField5, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 160, 150, -1));
 
@@ -898,7 +941,9 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cbxTypeProduct2;
     private javax.swing.JComboBox<String> cbxTypeProduct3;
     private javax.swing.JComboBox<String> cbxTypeProduct4;
+    private javax.swing.JComboBox<String> comboxPaymentMethod;
     private javax.swing.JComboBox<String> comboxReports;
+    private javax.swing.JComboBox<String> comboxService;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
     private javax.swing.JButton jButton12;
@@ -912,8 +957,6 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
-    private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JComboBox<String> jComboBox3;
     private javax.swing.JComboBox<String> jComboBox4;
     private javax.swing.JLabel jLabel10;
