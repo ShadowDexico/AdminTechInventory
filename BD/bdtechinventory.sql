@@ -358,6 +358,19 @@ BEGIN
     GROUP BY DATE(r.deliveryDate)
     ORDER BY DATE(r.deliveryDate) DESC;
 END;//
+
+CREATE PROCEDURE CheckExistingRepair(
+    IN p_clientId INT,
+    IN p_idService INT,
+    IN p_device VARCHAR(50),
+    IN p_model VARCHAR(50)
+)
+BEGIN
+    SELECT COUNT(*) AS repair_count
+    FROM Repairs
+    WHERE idClient = p_clientId AND idService = p_idService AND device = p_device AND model = p_model;
+END;//
+
 -- ------------------------------------------------------------------------------------------------
 CREATE PROCEDURE AddClient(
     IN p_name VARCHAR(50),

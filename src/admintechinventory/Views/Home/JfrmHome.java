@@ -1,5 +1,6 @@
 package admintechinventory.Views.Home;
 
+import admintechinventory.Controllers.Login.LoginController;
 import admintechinventory.Controllers.client.ClientController;
 import admintechinventory.Controllers.client.DNITypeController;
 import admintechinventory.Controllers.client.GetClientController;
@@ -12,9 +13,13 @@ import admintechinventory.Dao.ConexionBD;
 import admintechinventory.Dao.Reports.ReportDao;
 import admintechinventory.Models.Client;
 import admintechinventory.Models.Person;
+import admintechinventory.Models.Sesion;
+import admintechinventory.Views.Login.JfrmLoginUser;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -132,23 +137,64 @@ public class JfrmHome extends javax.swing.JFrame {
     }
 
     private void insertRepair(int clientId) {
-        String device = txtDevice.getText();
-        String brand = txtBrand.getText();
-        String model = txtModel.getText();
-        String faultDesc = txtaFaultDescription.getText();
+        if (clientId <= 0) {
+            JOptionPane.showMessageDialog(this, "Please select a client from the table before adding a repair.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        String device = txtDevice.getText().trim();
+        String brand = txtBrand.getText().trim();
+        String model = txtModel.getText().trim();
+        String faultDesc = txtaFaultDescription.getText().trim();
         java.util.Date delivery = dcDeliveryDate.getDate();
-        double cost = Double.parseDouble(txtRepairCost.getText());
+        String costText = txtRepairCost.getText().trim();
 
         String serviceName = comboxService.getSelectedItem().toString();
         String methodName = comboxPaymentMethod.getSelectedItem().toString();
 
+        StringBuilder errors = new StringBuilder();
+
+        if (device.isEmpty()) {
+            errors.append("- Device cannot be empty.\n");
+        }
+        if (brand.isEmpty()) {
+            errors.append("- Brand cannot be empty.\n");
+        }
+        if (model.isEmpty()) {
+            errors.append("- Model cannot be empty.\n");
+        }
+        if (faultDesc.isEmpty()) {
+            errors.append("- Fault description cannot be empty.\n");
+        }
+        if (delivery == null) {
+            errors.append("- Delivery date must be selected.\n");
+        }
+        if (costText.isEmpty()) {
+            errors.append("- Repair cost cannot be empty.\n");
+        } else {
+            try {
+                Double.parseDouble(costText);
+            } catch (NumberFormatException e) {
+                errors.append("- Repair cost must be a valid number.\n");
+            }
+        }
+        if (errors.length() > 0) {
+            JOptionPane.showMessageDialog(this, "Please correct the following errors:\n" + errors.toString(), "Validation Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        double cost = Double.parseDouble(costText);
         int idService = callGetServiceId(serviceName);
         int idPaymentMethod = callGetPaymentMethodId(methodName);
         int idMaterial = 1;
         int idFaultType = 1;
         int idStatus = 1;
 
-        try (Connection conn = ConexionBD.getConnection(); CallableStatement stmt = conn.prepareCall("CALL insertRepair(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");) {
+        if (clientHasRepairOfType(clientId, idService, device, model)) {
+            JOptionPane.showMessageDialog(this, "This client already has a repair for this device and service.");
+            return;
+        }
+
+        try (Connection conn = ConexionBD.getConnection(); CallableStatement stmt = conn.prepareCall("CALL insertRepair(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+
             stmt.setString(1, device);
             stmt.setString(2, brand);
             stmt.setString(3, model);
@@ -162,10 +208,33 @@ public class JfrmHome extends javax.swing.JFrame {
             stmt.setInt(11, idStatus);
             stmt.setInt(12, idService);
             stmt.execute();
+
             JOptionPane.showMessageDialog(this, "Repair registered successfully.");
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error inserting repair: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Error inserting repair: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
+    }
+
+    public boolean clientHasRepairOfType(int clientId, int idService, String device, String model) {
+        boolean exists = false;
+
+        try (Connection conn = ConexionBD.getConnection(); CallableStatement stmt = conn.prepareCall("CALL CheckExistingRepair(?, ?, ?, ?)")) {
+
+            stmt.setInt(1, clientId);
+            stmt.setInt(2, idService);
+            stmt.setString(3, device);
+            stmt.setString(4, model);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next() && rs.getInt("repair_count") > 0) {
+                exists = true;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error checking repair type: " + e.getMessage());
+        }
+
+        return exists;
     }
 
     public void adminControllers() {
@@ -244,6 +313,14 @@ public class JfrmHome extends javax.swing.JFrame {
         comboxTypeDNI.setSelectedIndex(0);
     }
 
+    private int getSelectedClientIdFromTable() {
+        int selectedRow = tableClient.getSelectedRow();
+        if (selectedRow == -1) {
+            return -1; 
+        }
+        return (int) tableClient.getValueAt(selectedRow, 0);
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -252,6 +329,7 @@ public class JfrmHome extends javax.swing.JFrame {
         pnlHeader = new javax.swing.JPanel();
         lblPositionEmployee = new javax.swing.JLabel();
         lblNameEmployee1 = new javax.swing.JLabel();
+        btnReturnLogin = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         pnlReport = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
@@ -372,19 +450,27 @@ public class JfrmHome extends javax.swing.JFrame {
         pnlHeader.setBackground(new java.awt.Color(0, 204, 204));
 
         lblPositionEmployee.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        lblPositionEmployee.setForeground(new java.awt.Color(0, 0, 0));
         lblPositionEmployee.setText("Position:");
 
         lblNameEmployee1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        lblNameEmployee1.setForeground(new java.awt.Color(0, 0, 0));
         lblNameEmployee1.setText("Employee:");
+
+        btnReturnLogin.setBackground(new java.awt.Color(255, 0, 0));
+        btnReturnLogin.setText("Return Login");
+        btnReturnLogin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReturnLoginActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout pnlHeaderLayout = new javax.swing.GroupLayout(pnlHeader);
         pnlHeader.setLayout(pnlHeaderLayout);
         pnlHeaderLayout.setHorizontalGroup(
             pnlHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlHeaderLayout.createSequentialGroup()
-                .addContainerGap(624, Short.MAX_VALUE)
+                .addGap(30, 30, 30)
+                .addComponent(btnReturnLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 479, Short.MAX_VALUE)
                 .addComponent(lblNameEmployee1, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(108, 108, 108)
                 .addComponent(lblPositionEmployee, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -396,8 +482,9 @@ public class JfrmHome extends javax.swing.JFrame {
                 .addGap(25, 25, 25)
                 .addGroup(pnlHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblPositionEmployee, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblNameEmployee1))
-                .addContainerGap(27, Short.MAX_VALUE))
+                    .addComponent(lblNameEmployee1)
+                    .addComponent(btnReturnLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
 
         getContentPane().add(pnlHeader, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1080, 80));
@@ -417,7 +504,6 @@ public class JfrmHome extends javax.swing.JFrame {
         comboxReports.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         pnlReport.add(comboxReports, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 40, 240, -1));
 
-        tableReports.setBackground(new java.awt.Color(255, 255, 255));
         tableReports.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -430,7 +516,6 @@ public class JfrmHome extends javax.swing.JFrame {
             }
         ));
         tableReports.setSelectionBackground(new java.awt.Color(255, 255, 255));
-        tableReports.setSelectionForeground(new java.awt.Color(0, 0, 0));
         jScrollPane3.setViewportView(tableReports);
 
         pnlReport.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, 880, 460));
@@ -479,7 +564,6 @@ public class JfrmHome extends javax.swing.JFrame {
 
         pnlRepair.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 310, 380, 180));
 
-        btnGetClient.setForeground(new java.awt.Color(0, 0, 0));
         btnGetClient.setText("Add client");
         btnGetClient.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -493,8 +577,12 @@ public class JfrmHome extends javax.swing.JFrame {
         jLabel13.setText("Add repair");
         pnlRepair.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 40, 130, 40));
 
-        btnRepairPhone.setForeground(new java.awt.Color(0, 0, 0));
         btnRepairPhone.setText("Repair phone");
+        btnRepairPhone.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRepairPhoneActionPerformed(evt);
+            }
+        });
         pnlRepair.add(btnRepairPhone, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 510, 130, 40));
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -502,7 +590,6 @@ public class JfrmHome extends javax.swing.JFrame {
         jLabel2.setText("Search client:");
         pnlRepair.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 30, -1, -1));
 
-        brnClear.setForeground(new java.awt.Color(0, 0, 0));
         brnClear.setText("Clear request");
         pnlRepair.add(brnClear, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 510, 130, 40));
 
@@ -532,7 +619,6 @@ public class JfrmHome extends javax.swing.JFrame {
         jLabel22.setText("Payment method:");
         pnlRepair.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 220, -1, -1));
 
-        btnShowRepairs.setForeground(new java.awt.Color(0, 0, 0));
         btnShowRepairs.setText("Show repairs");
         btnShowRepairs.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -565,7 +651,6 @@ public class JfrmHome extends javax.swing.JFrame {
 
         pnlProduct.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 170, 470, 310));
 
-        jButton4.setForeground(new java.awt.Color(0, 0, 0));
         jButton4.setText("Add client");
         pnlProduct.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 510, 120, 40));
 
@@ -577,11 +662,9 @@ public class JfrmHome extends javax.swing.JFrame {
         jLabel12.setText("Type product:");
         pnlProduct.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, -1, -1));
 
-        jButton5.setForeground(new java.awt.Color(0, 0, 0));
         jButton5.setText("Search");
         pnlProduct.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 40, 90, -1));
 
-        jTextField1.setBackground(new java.awt.Color(255, 255, 255));
         jTextField1.setDisabledTextColor(new java.awt.Color(255, 255, 255));
         pnlProduct.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 0, 20, 600));
 
@@ -590,7 +673,6 @@ public class JfrmHome extends javax.swing.JFrame {
         pnlProduct.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 30, 90, -1));
         pnlProduct.add(jTextField7, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 30, 170, -1));
 
-        jButton6.setForeground(new java.awt.Color(0, 0, 0));
         jButton6.setText("Search");
         pnlProduct.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 50, 90, -1));
 
@@ -614,7 +696,6 @@ public class JfrmHome extends javax.swing.JFrame {
 
         pnlProduct.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, 470, 310));
 
-        jButton7.setForeground(new java.awt.Color(0, 0, 0));
         jButton7.setText("Buy");
         pnlProduct.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 510, 120, 40));
 
@@ -654,7 +735,6 @@ public class JfrmHome extends javax.swing.JFrame {
         jLabel35.setForeground(new java.awt.Color(255, 255, 255));
         jLabel35.setText("Register Person:");
 
-        btnAddClient.setForeground(new java.awt.Color(0, 0, 0));
         btnAddClient.setText("Add Client");
         btnAddClient.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -662,7 +742,6 @@ public class JfrmHome extends javax.swing.JFrame {
             }
         });
 
-        jButton11.setForeground(new java.awt.Color(0, 0, 0));
         jButton11.setText("Clean data");
         jButton11.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -799,13 +878,10 @@ public class JfrmHome extends javax.swing.JFrame {
         jLabel42.setForeground(new java.awt.Color(255, 255, 255));
         jLabel42.setText("Company name:");
 
-        jButton12.setForeground(new java.awt.Color(0, 0, 0));
         jButton12.setText("Delete supplier");
 
-        jButton13.setForeground(new java.awt.Color(0, 0, 0));
         jButton13.setText("Add supplier");
 
-        jButton14.setForeground(new java.awt.Color(0, 0, 0));
         jButton14.setText("Edit");
 
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
@@ -926,10 +1002,8 @@ public class JfrmHome extends javax.swing.JFrame {
         jTextArea2.setRows(5);
         jScrollPane6.setViewportView(jTextArea2);
 
-        jButton9.setForeground(new java.awt.Color(0, 0, 0));
         jButton9.setText("Exit");
 
-        jButton10.setForeground(new java.awt.Color(0, 0, 0));
         jButton10.setText("Save");
 
         jLabel43.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
@@ -1114,50 +1188,71 @@ public class JfrmHome extends javax.swing.JFrame {
     private void btnAddClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddClientActionPerformed
 
         try {
-            System.out.println("Botón btnAddClient presionado. DNI Type: " + (comboxTypeDNI.getSelectedItem() != null ? comboxTypeDNI.getSelectedItem().toString() : "null")); // Para depurar
-
-            String name = txtName.getText();
-            String lastName = txtLastName.getText();
-            String dni = txtNdni.getText();
-            String phone = txtNumberPhone.getText();
-            String email = txtEmail.getText();
-            String address = txtAddress.getText();
-
-            if (comboxTypeDNI.getSelectedItem() == null || "Select a DNI Type...".equals(comboxTypeDNI.getSelectedItem().toString())) {
-                JOptionPane.showMessageDialog(this, "Select a valid DNI Type");
-                comboxTypeDNI.requestFocusInWindow(); // Poner foco
+            int clientId = getSelectedClientIdFromTable();
+            if (clientId <= 0) { 
+                JOptionPane.showMessageDialog(this, "Please select a client from the table before adding a repair.", "Validation Error", JOptionPane.WARNING_MESSAGE);
                 return;
+            }
+
+            String name = txtName.getText().trim();
+            String lastName = txtLastName.getText().trim();
+            String dni = txtNdni.getText().trim();
+            String phone = txtNumberPhone.getText().trim();
+            String email = txtEmail.getText().trim();
+            String address = txtAddress.getText().trim();
+
+            StringBuilder errors = new StringBuilder();
+            
+            if (comboxTypeDNI.getSelectedItem() == null || "Select a DNI Type...".equals(comboxTypeDNI.getSelectedItem().toString())) {
+                errors.append("- Select a valid DNI Type.\n");
             }
 
             String typeDni = comboxTypeDNI.getSelectedItem().toString();
 
-            if (name.isEmpty() || lastName.isEmpty() || dni.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Please complete the required fields (Name, Last Name, DNI)");
-                if (name.isEmpty()) {
-                    txtName.requestFocusInWindow();
-                } else if (lastName.isEmpty()) {
-                    txtLastName.requestFocusInWindow();
-                } else if (dni.isEmpty()) {
-                    txtNdni.requestFocusInWindow();
-                }
+            if (name.isEmpty()) {
+                errors.append("- Name cannot be empty.\n");
+            }
+
+            if (lastName.isEmpty()) {
+                errors.append("- Last Name cannot be empty.\n");
+            }
+
+            if (dni.isEmpty()) {
+                errors.append("- DNI cannot be empty.\n");
+            }
+
+            if (!phone.isEmpty() && !phone.matches("^\\d{8,15}$")) {
+                errors.append("- Invalid phone format. Only numbers (8-15 digits) are allowed.\n");
+            }
+
+            if (!email.isEmpty() && !email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$")) {
+                errors.append("- Invalid email format.\n");
+            }
+
+            if (!address.isEmpty() && address.length() < 5) {
+                errors.append("- Address must be at least 5 characters long.\n");
+            }
+
+            if (errors.length() > 0) {
+                JOptionPane.showMessageDialog(this, "Please correct the following errors:\n" + errors.toString(), "Validation Error", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
             Person person = new Person(name, lastName, typeDni, dni, address, phone, email);
-            Client client = new Client(0, person);
+            Client client = new Client(clientId, person);
 
             GetClientDAO dao = new GetClientDAO();
             GetClientController controller = new GetClientController(dao);
 
             boolean success = controller.addClient(client);
-            JOptionPane.showMessageDialog(this, success ? "Client added successfully!" : "Error al agregar cliente.");
+            JOptionPane.showMessageDialog(this, success ? "Client added successfully!" : "Error adding client.");
 
             if (success) {
                 cleanFields();
                 loadClientsTable();
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error adding client: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Unexpected error adding client: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
     }//GEN-LAST:event_btnAddClientActionPerformed
@@ -1171,6 +1266,36 @@ public class JfrmHome extends javax.swing.JFrame {
         txtAddress.setText("");
         comboxTypeDNI.setSelectedIndex(0);
     }//GEN-LAST:event_jButton11ActionPerformed
+
+    private void btnRepairPhoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRepairPhoneActionPerformed
+
+    }//GEN-LAST:event_btnRepairPhoneActionPerformed
+
+    private void btnReturnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReturnLoginActionPerformed
+        int option = JOptionPane.showConfirmDialog(this,
+                "¿Está seguro que desea cerrar sesión?",
+                "Confirmar cierre de sesión",
+                JOptionPane.YES_NO_OPTION);
+
+        if (option == JOptionPane.YES_OPTION) {
+            Sesion.closedSesion();
+
+            this.dispose();
+
+            try {
+                JfrmLoginUser login = new JfrmLoginUser();
+                Connection conn = ConexionBD.getConnection(); // Obtener conexión
+                LoginController controller = new LoginController(login, conn);
+                login.setLocationRelativeTo(null);
+                login.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null,
+                        "Error al abrir login: " + e.getMessage());
+                System.exit(1);
+            }
+        }
+    }//GEN-LAST:event_btnReturnLoginActionPerformed
 
     public static void main(String args[]) {
 
@@ -1186,6 +1311,7 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JButton btnAddClient;
     private javax.swing.JButton btnGetClient;
     private javax.swing.JButton btnRepairPhone;
+    private javax.swing.JButton btnReturnLogin;
     private javax.swing.JButton btnShowRepairs;
     private javax.swing.JComboBox<String> cbxTypeProduct;
     private javax.swing.JComboBox<String> cbxTypeProduct1;

@@ -26,7 +26,6 @@ public class GetClientDAO {
             cs.setString(7, p.getMail());
 
             cs.execute();
-            JOptionPane.showMessageDialog(null, "Cliente agregado correctamente.");
             return true;
 
         } catch (SQLException e) {

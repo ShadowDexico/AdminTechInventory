@@ -3,14 +3,34 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/quint/OneDrive/Escritorio/Tecno/AdminTechInventory/src/admintechinventory/Models/Client.java</file>
-            <file>file:/C:/Users/quint/OneDrive/Escritorio/Tecno/AdminTechInventory/src/admintechinventory/Controllers/client/getClientController.java</file>
-            <file>file:/C:/Users/quint/OneDrive/Escritorio/Tecno/AdminTechInventory/src/admintechinventory/Dao/Client/ClientDAO.java</file>
-            <file>file:/C:/Users/quint/OneDrive/Escritorio/Tecno/AdminTechInventory/src/admintechinventory/Dao/repair/PaymentMethodDAO.java</file>
-            <file>file:/C:/Users/quint/OneDrive/Escritorio/Tecno/AdminTechInventory/src/admintechinventory/Views/Home/JfrmHome.java</file>
-            <file>file:/C:/Users/quint/OneDrive/Escritorio/Tecno/AdminTechInventory/src/admintechinventory/Controllers/client/ClientController.java</file>
-            <file>file:/C:/Users/quint/OneDrive/Escritorio/Tecno/AdminTechInventory/src/admintechinventory/Dao/Client/getClientDAO.java</file>
-            <file>file:/C:/Users/quint/OneDrive/Escritorio/Tecno/AdminTechInventory/src/admintechinventory/Models/Person.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Dao/Client/ClientDAO.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Models/Rol.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Controllers/repairs/ServiceController.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Controllers/client/GetClientController.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Dao/repair/RepairDAO.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Models/User.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Dao/Login/UserDao.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Controllers/repairs/PaymentMethodController.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Dao/Login/RolDao.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Controllers/client/ClientController.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Dao/repair/ShowRepairDAO.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Views/Home/frmRepairs.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Dao/Reports/ReportDao.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Models/Repair.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Controllers/client/DNITypeController.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Controllers/repairs/ShowRepairController.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Dao/repair/PaymentMethodDAO.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Models/Sesion.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Dao/ConexionBD.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Controllers/repairs/RepairController.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Dao/repair/ServiceDAO.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/AdminTechInventory.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Controllers/Login/LoginController.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Models/Client.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Views/Home/JfrmHome.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Models/Person.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Models/DNIType.java</file>
+            <file>file:/D:/AdminTechInventory/src/admintechinventory/Dao/Client/GetClientDAO.java</file>
         </group>
     </open-files>
 </project-private>
