@@ -10,6 +10,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.List;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 public class JfrmHome extends javax.swing.JFrame {
@@ -21,6 +22,7 @@ public class JfrmHome extends javax.swing.JFrame {
     private PaymentMethodController paymentMethod = new PaymentMethodController();
 
     private int selectedClientId = -1;
+    private frmRepairs frmRepairs = null;
 
     public JfrmHome() {
         initComponents();
@@ -31,7 +33,6 @@ public class JfrmHome extends javax.swing.JFrame {
         loadServices();
         loadPaymentMethod();
         setupClientTableClick();
-
     }
 
     private void loadReportsComboBox() {
@@ -81,16 +82,16 @@ public class JfrmHome extends javax.swing.JFrame {
                 if (selectedRow >= 0) {
                     try {
                         selectedClientId = Integer.parseInt(tableClient.getValueAt(selectedRow, 0).toString());
-                        JOptionPane.showMessageDialog(this, "Cliente seleccionado: " + selectedClientId);
+                        JOptionPane.showMessageDialog(this, "Client select: " + selectedClientId);
                     } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(this, "Error: ID de cliente inválido.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "Error: ID de client incorrect.", "Advertencia", JOptionPane.WARNING_MESSAGE);
                     }
                 }
             }
         });
         btnRepairPhone.addActionListener(e -> {
             if (selectedClientId == -1) {
-                JOptionPane.showMessageDialog(this, "Por favor seleccione un cliente antes de reparar.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Select client please", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
                 insertRepair(selectedClientId);
             }
@@ -164,6 +165,7 @@ public class JfrmHome extends javax.swing.JFrame {
         comboxReports.setEnabled(false);
         jTabbedPane1.setEnabledAt(0, false);
         jTabbedPane1.setSelectedIndex(1);
+        btnShowRepairs.setEnabled(false);
     }
 
     private void loadServices() {
@@ -242,6 +244,7 @@ public class JfrmHome extends javax.swing.JFrame {
         jLabel21 = new javax.swing.JLabel();
         dcDeliveryDate = new com.toedter.calendar.JDateChooser();
         jLabel22 = new javax.swing.JLabel();
+        btnShowRepairs = new javax.swing.JButton();
         pnlProduct = new javax.swing.JPanel();
         cbxTypeProduct = new javax.swing.JComboBox<>();
         jTextField6 = new javax.swing.JTextField();
@@ -438,7 +441,12 @@ public class JfrmHome extends javax.swing.JFrame {
 
         btnGetClient.setForeground(new java.awt.Color(0, 0, 0));
         btnGetClient.setText("Add client");
-        pnlRepair.add(btnGetClient, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 520, 130, 40));
+        btnGetClient.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGetClientActionPerformed(evt);
+            }
+        });
+        pnlRepair.add(btnGetClient, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 520, 130, 40));
 
         jLabel13.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel13.setForeground(new java.awt.Color(255, 255, 255));
@@ -483,6 +491,15 @@ public class JfrmHome extends javax.swing.JFrame {
         jLabel22.setForeground(new java.awt.Color(255, 255, 255));
         jLabel22.setText("Payment method:");
         pnlRepair.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 220, -1, -1));
+
+        btnShowRepairs.setForeground(new java.awt.Color(0, 0, 0));
+        btnShowRepairs.setText("Show repairs");
+        btnShowRepairs.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnShowRepairsActionPerformed(evt);
+            }
+        });
+        pnlRepair.add(btnShowRepairs, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 520, 120, 40));
 
         jTabbedPane1.addTab("Repairs", pnlRepair);
 
@@ -1031,6 +1048,19 @@ public class JfrmHome extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnShowRepairsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShowRepairsActionPerformed
+
+        if (frmRepairs == null || !frmRepairs.isVisible()) {
+            frmRepairs = new frmRepairs();
+            frmRepairs.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frmRepairs.setVisible(true);
+        }
+    }//GEN-LAST:event_btnShowRepairsActionPerformed
+
+    private void btnGetClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGetClientActionPerformed
+        jTabbedPane1.setSelectedComponent(pnlAddClient);
+    }//GEN-LAST:event_btnGetClientActionPerformed
+
     public static void main(String args[]) {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -1044,6 +1074,7 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JButton brnClear;
     private javax.swing.JButton btnGetClient;
     private javax.swing.JButton btnRepairPhone;
+    private javax.swing.JButton btnShowRepairs;
     private javax.swing.JComboBox<String> cbxTypeProduct;
     private javax.swing.JComboBox<String> cbxTypeProduct1;
     private javax.swing.JComboBox<String> cbxTypeProduct2;
