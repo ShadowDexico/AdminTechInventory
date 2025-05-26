@@ -174,7 +174,7 @@ VALUES ('Smartphone', 'Apple', 'iPhone 12', 'Batería dañada', '2025-04-10 14:0
 INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, observation, hasSIM, hasCase, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
 VALUES ('Laptop', 'HP', 'Pavilion', 'Pantalla rota', '2025-04-12 09:30:00', '2025-04-17 18:20:00', 220.00, 'Reemplazo de pantalla', FALSE, TRUE, 3, NULL, 1, NULL, NULL, 1);
 
-CALL commonfaultreport();
+-- CALL commonfaultreport();
 -- CALL AverageFaultTimeReport();
 -- CALL FrequentCustomersReport();
 -- CALL RepairIncomeReport();
@@ -194,7 +194,9 @@ begin
     values (`name`, password, idRol);
 end;//
 call insert_Users('admin','admin',1);//
+call insert_Users('fernando','fernando',1);//
 call insert_Users('staff','staff',2);//
+call insert_Users('jhon','jhon',2);//
 
 
 DROP PROCEDURE IF EXISTS Login;//
