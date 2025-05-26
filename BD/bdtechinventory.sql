@@ -176,12 +176,16 @@ INSERT INTO `Status` (name) VALUES
 ('Pending'), 
 ('In progress'), 
 ('Repaired');
+select * from service;
 
-select * from `Status`;
+-- CALL getServiceIdByName('Cambio de display');
+-- CALL getPaymentMethodIdByName('efectivo');
+
 -- CALL commonfaultreport();
 -- CALL AverageFaultTimeReport();
 -- CALL FrequentCustomersReport();
 -- CALL RepairIncomeReport();
+
 delimiter //
 
 create procedure insert_Rol(`name` varchar(50))
@@ -233,6 +237,11 @@ BEGIN
     SELECT service FROM Service;
 END;//
 
+CREATE PROCEDURE getServiceIdByName(IN serviceName VARCHAR(100))
+BEGIN
+    SELECT id FROM service WHERE service = serviceName;
+END;//
+
 create procedure insertPaymentMethod(methods varchar(150))
 begin
     insert into PaymentMethods(methods) values (methods);
@@ -245,6 +254,11 @@ call insertPaymentMethod('transferencia');//
 CREATE PROCEDURE getPaymentMethods()
 BEGIN
     SELECT methods FROM paymentmethods;
+END;//
+
+CREATE PROCEDURE getPaymentMethodIdByName(IN methodName VARCHAR(100))
+BEGIN
+    SELECT id FROM paymentmethods WHERE methods = methodName;
 END;//
 
 -- para insertar reparaciones
@@ -355,7 +369,8 @@ begin
     
 create procedure ShowClient()
 begin
-    select 
+    select
+		`Client`.id AS 'Client ID',
         Person.`name` as 'Name',
         Person.lastName as 'Last name',
         Person.DNItype as 'DNI type',
