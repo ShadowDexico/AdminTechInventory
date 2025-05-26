@@ -116,9 +116,6 @@ CREATE TABLE Repairs (
     entryDate datetime DEFAULT CURRENT_TIMESTAMP,
     deliveryDate datetime DEFAULT CURRENT_TIMESTAMP,
     repairCost DOUBLE NOT NULL,
-    observation TEXT NOT NULL,
-    hasSIM BOOLEAN NOT NULL DEFAULT FALSE,
-    hasCase BOOLEAN NOT NULL DEFAULT FALSE,
     idClient inT,
     idMaterial inT,
     idFaultType inT,
@@ -132,6 +129,7 @@ CREATE TABLE Repairs (
     FOREIGN KEY (idStatus) REFERENCES `Status`(id),
     FOREIGN KEY (idService) REFERENCES Service(id)
 );
+
 create table RepairMaterial(
     id int primary key auto_increment,
     idRepair int,
@@ -160,19 +158,19 @@ VALUES ('Carlos', 'Fernández', 'CC', '11112222', 'Av. Secundaria 789', '3154446
 INSERT INTO Client (idPerson) VALUES (1);
 INSERT INTO Client (idPerson) VALUES (2);
 INSERT INTO Client (idPerson) VALUES (3);
-INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, observation, hasSIM, hasCase, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
-VALUES ('Smartphone', 'Samsung', 'Galaxy S21', 'Pantalla rota', '2025-04-01 10:00:00', '2025-04-05 15:30:00', 200.00, 'Reemplazo completo de pantalla', TRUE, FALSE, 1, NULL, 1, NULL, NULL, 1);
+INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
+VALUES ('Smartphone', 'Samsung', 'Galaxy S21', 'Pantalla rota', '2025-04-01 10:00:00', '2025-04-05 15:30:00', 200.00, 1, NULL, 1, NULL, NULL, 1);
 
-INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, observation, hasSIM, hasCase, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
-VALUES ('Laptop', 'Dell', 'Inspiron 15', 'Problema de software', '2025-04-02 12:15:00', '2025-04-06 16:45:00', 150.00, 'Reinstalación de sistema operativo', FALSE, FALSE, 2, NULL, 3, NULL, NULL, 3);
+INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost,idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
+VALUES ('Laptop', 'Dell', 'Inspiron 15', 'Problema de software', '2025-04-02 12:15:00', '2025-04-06 16:45:00', 150.00,2, NULL, 3, NULL, NULL, 3);
 
-INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, observation, hasSIM, hasCase, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
-VALUES ('Tablet', 'Apple', 'iPad Pro', 'Altavoz defectuoso', '2025-04-03 09:30:00', '2025-04-07 14:00:00', 180.00, 'Reemplazo de altavoz', FALSE, FALSE, 3, NULL, 4, NULL, NULL, 4);
-INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, observation, hasSIM, hasCase, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
-VALUES ('Smartphone', 'Apple', 'iPhone 12', 'Batería dañada', '2025-04-10 14:00:00', '2025-04-15 11:45:00', 120.00, 'Reemplazo de batería', FALSE, FALSE, 2, NULL, 2, NULL, NULL, 2);
+INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
+VALUES ('Tablet', 'Apple', 'iPad Pro', 'Altavoz defectuoso', '2025-04-03 09:30:00', '2025-04-07 14:00:00', 180.00, 3, NULL, 4, NULL, NULL, 4);
+INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
+VALUES ('Smartphone', 'Apple', 'iPhone 12', 'Batería dañada', '2025-04-10 14:00:00', '2025-04-15 11:45:00', 120.00, 2, NULL, 2, NULL, NULL, 2);
 
-INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, observation, hasSIM, hasCase, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
-VALUES ('Laptop', 'HP', 'Pavilion', 'Pantalla rota', '2025-04-12 09:30:00', '2025-04-17 18:20:00', 220.00, 'Reemplazo de pantalla', FALSE, TRUE, 3, NULL, 1, NULL, NULL, 1);
+INSERT INTO Repairs (device, mark, model, faultDescription, entryDate, deliveryDate, repairCost, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
+VALUES ('Laptop', 'HP', 'Pavilion', 'Pantalla rota', '2025-04-12 09:30:00', '2025-04-17 18:20:00', 220.00, 3, NULL, 1, NULL, NULL, 1);
 
 -- CALL commonfaultreport();
 -- CALL AverageFaultTimeReport();
@@ -225,6 +223,11 @@ call insertService('Cambio de repuesto');//
 call insertService('Hardware');//
 call insertService('Microsoldadura');//
 
+CREATE PROCEDURE getServices()
+BEGIN
+    SELECT service FROM Service;
+END;//
+
 create procedure insertPaymentMethod(methods varchar(150))
 begin
     insert into PaymentMethods(methods) values (methods);
@@ -234,6 +237,10 @@ call insertPaymentMethod('efectivo');//
 call insertPaymentMethod('tarjeta');//
 call insertPaymentMethod('transferencia');//
 
+CREATE PROCEDURE getPaymentMethods()
+BEGIN
+    SELECT methods FROM paymentmethods;
+END;//
 
 -- para insertar reparaciones
 create procedure setRepair(
@@ -244,9 +251,6 @@ create procedure setRepair(
     in p_entryDate datetime,
     in p_deliveryDate datetime,
     in p_repairCost double,
-    in p_observation text,
-    in p_hasSIM boolean,
-    in p_hasCase boolean,
     in p_idClient int,
     in p_idMaterial int,
     in p_idFaultType int,
@@ -256,15 +260,13 @@ create procedure setRepair(
 begin
     insert into Repairs (
         device, mark, model, faultDescription,
-        entryDate, deliveryDate, repairCost, observation,
-        hasSIM, hasCase,
+        entryDate, deliveryDate, repairCost,
         idClient, idMaterial, idFaultType,
         idPaymentMethods, idStatus
     )
     values (
         p_device, p_mark, p_model, p_faultDescription,
-        p_entryDate, p_deliveryDate, p_repairCost, p_observation,
-        p_hasSIM, p_hasCase,
+        p_entryDate, p_deliveryDate, p_repairCost,
         p_idClient, p_idMaterial, p_idFaultType,
         p_idPaymentMethods, p_idStatus
     );
