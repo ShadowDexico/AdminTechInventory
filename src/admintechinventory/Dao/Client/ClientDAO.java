@@ -28,19 +28,19 @@ public class ClientDAO {
             model.addColumn("DNI");
             model.addColumn("Address");
             model.addColumn("Telephone");
-            model.addColumn("Mail");
+            model.addColumn("Email");
             model.setRowCount(0);
 
             while (rs.next()) {
                 model.addRow(new Object[]{
-                    rs.getInt("Client ID"),
-                    rs.getString("Name"),
+                    rs.getInt("Person ID"),
+                     rs.getString("Name"),
                     rs.getString("Last name"),
                     rs.getString("DNI type"),
                     rs.getString("DNI"),
                     rs.getString("Address"),
-                    rs.getString("Telephone"),
-                    rs.getString("Mail")
+                    rs.getString("Phone"),
+                    rs.getString("Email")
                 });
             }
 

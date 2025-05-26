@@ -1,11 +1,17 @@
 package admintechinventory.Views.Home;
 
 import admintechinventory.Controllers.client.ClientController;
+import admintechinventory.Controllers.client.DNITypeController;
+import admintechinventory.Controllers.client.GetClientController;
 import admintechinventory.Controllers.repairs.PaymentMethodController;
 import admintechinventory.Controllers.repairs.ServiceController;
 import admintechinventory.Dao.Client.ClientDAO;
+import admintechinventory.Dao.Client.DNITypeDAO;
+import admintechinventory.Dao.Client.GetClientDAO;
 import admintechinventory.Dao.ConexionBD;
 import admintechinventory.Dao.Reports.ReportDao;
+import admintechinventory.Models.Client;
+import admintechinventory.Models.Person;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -33,6 +39,7 @@ public class JfrmHome extends javax.swing.JFrame {
         loadServices();
         loadPaymentMethod();
         setupClientTableClick();
+        loadTypeDNI();
     }
 
     private void loadReportsComboBox() {
@@ -204,6 +211,39 @@ public class JfrmHome extends javax.swing.JFrame {
         });
     }
 
+    private void loadTypeDNI() {
+        comboxTypeDNI.removeAllItems();
+        comboxTypeDNI.addItem("Select a DNI Type...");
+
+        DNITypeDAO dao = new DNITypeDAO();
+        DNITypeController controller = new DNITypeController(dao);
+
+        List<String> dniTypes = controller.getDNITypes();
+
+        for (String type : dniTypes) {
+            comboxTypeDNI.addItem(type);
+        }
+
+        comboxTypeDNI.addItemListener(e -> {
+            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+                if (comboxTypeDNI.getSelectedItem().equals("Select a DNI Type...")) {
+                    JOptionPane.showMessageDialog(this, "Please select a valid DNI Type.");
+                    comboxTypeDNI.setSelectedIndex(1);
+                }
+            }
+        });
+    }
+
+    private void cleanFields() {
+        txtName.setText("");
+        txtLastName.setText("");
+        txtNdni.setText("");
+        txtNumberPhone.setText("");
+        txtEmail.setText("");
+        txtAddress.setText("");
+        comboxTypeDNI.setSelectedIndex(0);
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -265,22 +305,22 @@ public class JfrmHome extends javax.swing.JFrame {
         jButton7 = new javax.swing.JButton();
         pnlAddClient = new javax.swing.JPanel();
         jLabel27 = new javax.swing.JLabel();
-        jTextField13 = new javax.swing.JTextField();
+        txtName = new javax.swing.JTextField();
         jLabel28 = new javax.swing.JLabel();
-        jTextField14 = new javax.swing.JTextField();
+        txtLastName = new javax.swing.JTextField();
         jLabel29 = new javax.swing.JLabel();
         jLabel30 = new javax.swing.JLabel();
-        jTextField16 = new javax.swing.JTextField();
+        txtNdni = new javax.swing.JTextField();
         jLabel31 = new javax.swing.JLabel();
-        jTextField17 = new javax.swing.JTextField();
+        txtNumberPhone = new javax.swing.JTextField();
         jLabel32 = new javax.swing.JLabel();
-        jTextField18 = new javax.swing.JTextField();
+        txtEmail = new javax.swing.JTextField();
         jLabel33 = new javax.swing.JLabel();
-        jTextField19 = new javax.swing.JTextField();
+        txtAddress = new javax.swing.JTextField();
         jLabel35 = new javax.swing.JLabel();
-        jButton8 = new javax.swing.JButton();
+        btnAddClient = new javax.swing.JButton();
         jButton11 = new javax.swing.JButton();
-        jComboBox4 = new javax.swing.JComboBox<>();
+        comboxTypeDNI = new javax.swing.JComboBox<>();
         pnlAddSupplier = new javax.swing.JPanel();
         jLabel36 = new javax.swing.JLabel();
         jTextField21 = new javax.swing.JTextField();
@@ -614,13 +654,23 @@ public class JfrmHome extends javax.swing.JFrame {
         jLabel35.setForeground(new java.awt.Color(255, 255, 255));
         jLabel35.setText("Register Person:");
 
-        jButton8.setForeground(new java.awt.Color(0, 0, 0));
-        jButton8.setText("Add person");
+        btnAddClient.setForeground(new java.awt.Color(0, 0, 0));
+        btnAddClient.setText("Add Client");
+        btnAddClient.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddClientActionPerformed(evt);
+            }
+        });
 
         jButton11.setForeground(new java.awt.Color(0, 0, 0));
         jButton11.setText("Clean data");
+        jButton11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton11ActionPerformed(evt);
+            }
+        });
 
-        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        comboxTypeDNI.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         javax.swing.GroupLayout pnlAddClientLayout = new javax.swing.GroupLayout(pnlAddClient);
         pnlAddClient.setLayout(pnlAddClientLayout);
@@ -635,7 +685,7 @@ public class JfrmHome extends javax.swing.JFrame {
                                 .addGroup(pnlAddClientLayout.createSequentialGroup()
                                     .addComponent(jLabel27)
                                     .addGap(33, 33, 33)
-                                    .addComponent(jTextField13, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGroup(pnlAddClientLayout.createSequentialGroup()
                                     .addGroup(pnlAddClientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                         .addGroup(pnlAddClientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -649,30 +699,30 @@ public class JfrmHome extends javax.swing.JFrame {
                                             .addComponent(jLabel30)
                                             .addGap(33, 33, 33)))
                                     .addGroup(pnlAddClientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(jTextField14)
-                                        .addComponent(jComboBox4, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jTextField16, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                        .addComponent(txtLastName)
+                                        .addComponent(comboxTypeDNI, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(txtNdni, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE))))
                             .addGroup(pnlAddClientLayout.createSequentialGroup()
                                 .addGroup(pnlAddClientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addGroup(pnlAddClientLayout.createSequentialGroup()
                                         .addComponent(jLabel32)
                                         .addGap(18, 18, 18)
-                                        .addComponent(jTextField18, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addGroup(pnlAddClientLayout.createSequentialGroup()
                                         .addComponent(jLabel31)
                                         .addGap(18, 18, 18)
-                                        .addComponent(jTextField17, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(txtNumberPhone, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addGroup(pnlAddClientLayout.createSequentialGroup()
                                         .addComponent(jLabel33)
                                         .addGap(18, 18, 18)
-                                        .addComponent(jTextField19, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addComponent(txtAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addGap(15, 15, 15))))
                     .addGroup(pnlAddClientLayout.createSequentialGroup()
                         .addGap(399, 399, 399)
                         .addComponent(jLabel35))
                     .addGroup(pnlAddClientLayout.createSequentialGroup()
                         .addGap(396, 396, 396)
-                        .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnAddClient, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(27, 27, 27)
                         .addComponent(jButton11, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(361, Short.MAX_VALUE))
@@ -685,34 +735,34 @@ public class JfrmHome extends javax.swing.JFrame {
                 .addGap(30, 30, 30)
                 .addGroup(pnlAddClientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel27)
-                    .addComponent(jTextField13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(pnlAddClientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel28)
-                    .addComponent(jTextField14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtLastName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(pnlAddClientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel29)
-                    .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(comboxTypeDNI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(pnlAddClientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel30)
-                    .addComponent(jTextField16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtNdni, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(pnlAddClientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel31)
-                    .addComponent(jTextField17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtNumberPhone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(pnlAddClientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel32)
-                    .addComponent(jTextField18, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(pnlAddClientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel33)
-                    .addComponent(jTextField19, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtAddress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(38, 38, 38)
                 .addGroup(pnlAddClientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnAddClient, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton11, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(102, Short.MAX_VALUE))
         );
@@ -1061,6 +1111,67 @@ public class JfrmHome extends javax.swing.JFrame {
         jTabbedPane1.setSelectedComponent(pnlAddClient);
     }//GEN-LAST:event_btnGetClientActionPerformed
 
+    private void btnAddClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddClientActionPerformed
+
+        try {
+            System.out.println("Botón btnAddClient presionado. DNI Type: " + (comboxTypeDNI.getSelectedItem() != null ? comboxTypeDNI.getSelectedItem().toString() : "null")); // Para depurar
+
+            String name = txtName.getText();
+            String lastName = txtLastName.getText();
+            String dni = txtNdni.getText();
+            String phone = txtNumberPhone.getText();
+            String email = txtEmail.getText();
+            String address = txtAddress.getText();
+
+            if (comboxTypeDNI.getSelectedItem() == null || "Select a DNI Type...".equals(comboxTypeDNI.getSelectedItem().toString())) {
+                JOptionPane.showMessageDialog(this, "Select a valid DNI Type");
+                comboxTypeDNI.requestFocusInWindow(); // Poner foco
+                return;
+            }
+
+            String typeDni = comboxTypeDNI.getSelectedItem().toString();
+
+            if (name.isEmpty() || lastName.isEmpty() || dni.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please complete the required fields (Name, Last Name, DNI)");
+                if (name.isEmpty()) {
+                    txtName.requestFocusInWindow();
+                } else if (lastName.isEmpty()) {
+                    txtLastName.requestFocusInWindow();
+                } else if (dni.isEmpty()) {
+                    txtNdni.requestFocusInWindow();
+                }
+                return;
+            }
+
+            Person person = new Person(name, lastName, typeDni, dni, address, phone, email);
+            Client client = new Client(0, person);
+
+            GetClientDAO dao = new GetClientDAO();
+            GetClientController controller = new GetClientController(dao);
+
+            boolean success = controller.addClient(client);
+            JOptionPane.showMessageDialog(this, success ? "Client added successfully!" : "Error al agregar cliente.");
+
+            if (success) {
+                cleanFields();
+                loadClientsTable();
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error adding client: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }//GEN-LAST:event_btnAddClientActionPerformed
+
+    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
+        txtName.setText("");
+        txtLastName.setText("");
+        txtNdni.setText("");
+        txtNumberPhone.setText("");
+        txtEmail.setText("");
+        txtAddress.setText("");
+        comboxTypeDNI.setSelectedIndex(0);
+    }//GEN-LAST:event_jButton11ActionPerformed
+
     public static void main(String args[]) {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -1072,6 +1183,7 @@ public class JfrmHome extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton brnClear;
+    private javax.swing.JButton btnAddClient;
     private javax.swing.JButton btnGetClient;
     private javax.swing.JButton btnRepairPhone;
     private javax.swing.JButton btnShowRepairs;
@@ -1083,6 +1195,7 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> comboxPaymentMethod;
     private javax.swing.JComboBox<String> comboxReports;
     private javax.swing.JComboBox<String> comboxService;
+    private javax.swing.JComboBox<String> comboxTypeDNI;
     private com.toedter.calendar.JDateChooser dcDeliveryDate;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
@@ -1093,10 +1206,8 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
-    private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
     private javax.swing.JComboBox<String> jComboBox3;
-    private javax.swing.JComboBox<String> jComboBox4;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
@@ -1153,12 +1264,6 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField10;
     private javax.swing.JTextField jTextField11;
     private javax.swing.JTextField jTextField12;
-    private javax.swing.JTextField jTextField13;
-    private javax.swing.JTextField jTextField14;
-    private javax.swing.JTextField jTextField16;
-    private javax.swing.JTextField jTextField17;
-    private javax.swing.JTextField jTextField18;
-    private javax.swing.JTextField jTextField19;
     private javax.swing.JTextField jTextField21;
     private javax.swing.JTextField jTextField22;
     private javax.swing.JTextField jTextField24;
@@ -1180,9 +1285,15 @@ public class JfrmHome extends javax.swing.JFrame {
     private javax.swing.JPanel pnlReport;
     private javax.swing.JTable tableClient;
     private javax.swing.JTable tableReports;
+    private javax.swing.JTextField txtAddress;
     private javax.swing.JTextField txtBrand;
     private javax.swing.JTextField txtDevice;
+    private javax.swing.JTextField txtEmail;
+    private javax.swing.JTextField txtLastName;
     private javax.swing.JTextField txtModel;
+    private javax.swing.JTextField txtName;
+    private javax.swing.JTextField txtNdni;
+    private javax.swing.JTextField txtNumberPhone;
     private javax.swing.JTextField txtRepairCost;
     private javax.swing.JTextField txtSearchClient;
     private javax.swing.JTextArea txtaFaultDescription;

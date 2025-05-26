@@ -13,16 +13,23 @@ create table Users(
     idRol int,
     foreign key (idRol) references Rol(id)
 );
-create table Person(
-    id int primary key auto_increment,
-    `name` varchar(50) not null,
-    lastName varchar(50) not null,
-    DNItype varchar(20) not null,
-    DNI varchar(20) not null unique,
-    address varchar(50) not null, 
-    telephone varchar(20) not null,
-    mail varchar(70) unique,
-    registrationdate datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+
+CREATE TABLE DNIType (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    `type` VARCHAR(20) NOT NULL UNIQUE
+);
+
+CREATE TABLE Person (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    `name` VARCHAR(50) NOT NULL,
+    lastName VARCHAR(50) NOT NULL,
+    DNItype INT NOT NULL,
+    DNI VARCHAR(20) NOT NULL UNIQUE,
+    address VARCHAR(50) NOT NULL, 
+    telephone VARCHAR(20) NOT NULL,
+    mail VARCHAR(70) UNIQUE,
+    registrationdate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (DNItype) REFERENCES DNIType(id)
 );
 create table PaymentMethods(
     id int primary key auto_increment,
@@ -137,7 +144,12 @@ create table RepairMaterial(
     foreign key (idRepair) references Repairs(id),
     foreign key (idMaterial) references Material(id)
 );
-
+INSERT INTO DNIType (`type`) VALUES 
+('CC'),  
+('CE'),   
+('TI'),   
+('Pasaporte'),
+('NIT');
 
 INSERT INTO FaultType (fault) VALUES ('Pantalla rota');
 INSERT INTO FaultType (fault) VALUES ('Batería dañada');
@@ -147,17 +159,20 @@ INSERT INTO Service (service) VALUES ('Cambio de pantalla');
 INSERT INTO Service (service) VALUES ('Reemplazo de batería');
 INSERT INTO Service (service) VALUES ('Reparación de software');
 INSERT INTO Service (service) VALUES ('Reemplazo de altavoz');
+-- Asumiendo que el tipo 'CC' tiene ID = 1
 INSERT INTO Person (name, lastName, DNItype, DNI, address, telephone, mail)
-VALUES ('Juan', 'Pérez', 'CC', '12345678', 'Av. Principal 123', '3001234567', 'juan.perez@email.com');
+VALUES ('Juan', 'Pérez', 1, '12345678', 'Av. Principal 123', '3001234567', 'juan.perez@email.com');
 
 INSERT INTO Person (name, lastName, DNItype, DNI, address, telephone, mail)
-VALUES ('Maria', 'Gómez', 'CC', '87654321', 'Calle Secundaria 456', '3109876543', 'maria.gomez@email.com');
+VALUES ('Maria', 'Gómez', 1, '87654321', 'Calle Secundaria 456', '3109876543', 'maria.gomez@email.com');
 
 INSERT INTO Person (name, lastName, DNItype, DNI, address, telephone, mail)
-VALUES ('Carlos', 'Fernández', 'CC', '11112222', 'Av. Secundaria 789', '3154446677', 'carlos.fernandez@email.com');
+VALUES ('Carlos', 'Fernández', 1, '11112222', 'Av. Secundaria 789', '3154446677', 'carlos.fernandez@email.com');
+
 INSERT INTO Client (idPerson) VALUES (1);
 INSERT INTO Client (idPerson) VALUES (2);
 INSERT INTO Client (idPerson) VALUES (3);
+
 INSERT INTO Repairs (device, brand, model, faultDescription, entryDate, deliveryDate, repairCost, idClient, idMaterial, idFaultType, idPaymentMethods, idStatus, idService)
 VALUES ('Smartphone', 'Samsung', 'Galaxy S21', 'Pantalla rota', '2025-04-01 10:00:00', '2025-04-05 15:30:00', 200.00, 1, NULL, 1, NULL, NULL, 1);
 
@@ -177,19 +192,14 @@ INSERT INTO `Status` (name) VALUES
 ('In progress'), 
 ('Repaired');
 -- ---------------------------------------------------------
-
-
-
 -- CALL getServiceIdByName('Cambio de display');
 -- CALL getPaymentMethodIdByName('efectivo');
-
 -- CALL commonfaultreport();
 -- CALL AverageFaultTimeReport();
 -- CALL FrequentCustomersReport();
 -- CALL RepairIncomeReport();
-
+-- call ShowClient();
 delimiter //
-
 create procedure insert_Rol(`name` varchar(50))
 begin
     insert into Rol(`name`) values (`name`);
@@ -206,7 +216,6 @@ call insert_Users('admin','admin',1);//
 call insert_Users('fernando','fernando',1);//
 call insert_Users('staff','staff',2);//
 call insert_Users('jhon','jhon',2);//
-
 
 DROP PROCEDURE IF EXISTS Login;//
 CREATE PROCEDURE Login(IN p_name VARCHAR(50), IN p_password VARCHAR(100))
@@ -288,17 +297,13 @@ BEGIN
         p_idClient, p_idMaterial, p_idFaultType, p_idPaymentMethods, p_idStatus, p_idService
     );
 END;//
-
-
 -- para mostrar las reparaciones: 
-
 CREATE PROCEDURE ShowRepairs()
 BEGIN
     SELECT * FROM Repairs;
 END;//
 -- ------------------------------------------------------------------------------------------------
 -- reportes: 
-
 CREATE PROCEDURE commonfaultreport()
 BEGIN
     SELECT 
@@ -312,30 +317,28 @@ BEGIN
     ORDER BY Amount DESC;
 END;//
 
-
 CREATE PROCEDURE AverageFaultTimeReport()
 BEGIN
     SELECT 
         ft.fault AS FaultType,
         AVG(TIMESTAMPDIFF(HOUR, r.entryDate, r.deliveryDate)) AS AverageHours,
         MIN(r.entryDate) AS 'Earliest Repair',
-        MAX(r.deliveryDate) AS 'Latest Repair' -- ✅ Cambio: ahora usa la última entrega registrada
+        MAX(r.deliveryDate) AS 'Latest Repair'
     FROM Repairs r
     INNER JOIN FaultType ft ON r.idFaultType = ft.id
-    WHERE r.deliveryDate IS NOT NULL -- ✅ Evita cálculos incorrectos si deliveryDate es NULL
+    WHERE r.deliveryDate IS NOT NULL
     GROUP BY ft.fault
     ORDER BY AverageHours DESC;
 END;//
-
 
 CREATE PROCEDURE FrequentCustomersReport()
 BEGIN
     SELECT 
         CONCAT(p.`name`, ' ', p.lastName) AS 'Client',
         COUNT(r.id) AS TotalRepairs,
-        COALESCE(GROUP_CONCAT(DISTINCT s.service SEPARATOR ', '), 'No Service') AS RequestedServices, -- ✅ Maneja clientes sin servicios registrados
+        COALESCE(GROUP_CONCAT(DISTINCT s.service SEPARATOR ', '), 'No Service') AS RequestedServices,
         MIN(r.entryDate) AS 'First Repair',
-        MAX(r.deliveryDate) AS 'Latest Repair' -- ✅ Cambio: usa la fecha de entrega en lugar de entryDate
+        MAX(r.deliveryDate) AS 'Latest Repair' 
     FROM Repairs r
     INNER JOIN `Client` c ON r.idClient = c.id
     INNER JOIN Person p ON c.idPerson = p.id
@@ -355,42 +358,46 @@ BEGIN
     GROUP BY DATE(r.deliveryDate)
     ORDER BY DATE(r.deliveryDate) DESC;
 END;//
-
 -- ------------------------------------------------------------------------------------------------
+CREATE PROCEDURE AddClient(
+    IN p_name VARCHAR(50),
+    IN p_lastName VARCHAR(50),
+    IN p_DNIType VARCHAR(20),
+    IN p_DNI VARCHAR(20),
+    IN p_address VARCHAR(50),
+    IN p_telephone VARCHAR(20),
+    IN p_mail VARCHAR(70)
+)
+BEGIN
+    DECLARE idDNI INT;
+    DECLARE id_persona INT;
+    SELECT id INTO idDNI FROM DNIType WHERE type = p_DNIType LIMIT 1;
+    IF idDNI IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: Invalid DNI Type';
+    END IF;
+    INSERT INTO Person(name, lastName, DNItype, DNI, address, telephone, mail)
+    VALUES (p_name, p_lastName, idDNI, p_DNI, p_address, p_telephone, p_mail);
+    SET id_persona = LAST_INSERT_ID();
+    INSERT INTO `Client`(idPerson) VALUES (id_persona);
+END;//
 
 
-create procedure AddClient(
-    in p_name varchar(50),
-    in p_lastName varchar(50),
-    in p_DNItype varchar(20),
-    in p_DNI varchar(20),
-    in p_address varchar(50),
-    in p_telephone varchar(20),
-    in p_mail varchar(70))
-begin
-    declare id_persona int;
-    insert into Person(name, lastName, DNItype, DNI, address, telephone, mail)
-    values (p_name, p_lastName, p_DNItype, p_DNI, p_address, p_telephone, p_mail);
-    -- Obtener el id generado
-    set id_persona = LasT_inSERT_ID();
-    -- insertar en la tabla Client
-    insert into `Client`(idPerson) values (id_persona);
-    end;//
-    
 create procedure ShowClient()
-begin
-    select
-		`Client`.id AS 'Client ID',
-        Person.`name` as 'Name',
-        Person.lastName as 'Last name',
-        Person.DNItype as 'DNI type',
-        Person.DNI as 'DNI',
-        Person.address as 'Address',
-        Person.telephone as 'Telephone',
-        Person.mail as 'Mail'
-    from Person
-    inner join `Client` on Person.id = `Client`.idPerson;
-end;//
+BEGIN
+    SELECT 
+        p.id AS 'Person ID',
+        p.name AS 'Name',
+        p.lastName AS 'Last Name',
+        dt.type AS 'DNI Type', 
+        p.DNI AS 'DNI',
+        p.address AS 'Address',
+        p.telephone AS 'Phone',
+        p.mail AS 'Email',
+        p.registrationdate AS 'Registration Date'
+    FROM Person p
+    INNER JOIN DNIType dt ON p.DNItype = dt.id; 
+END;//
 
 CREATE PROCEDURE AddSupplier(
     in p_companyName VARCHAR(50),
@@ -446,6 +453,15 @@ BEGin
     values (p_productType, p_productName, p_description, p_purchasePrice, p_purchaseDate, p_idSupplier);
 end;//
 
+CREATE PROCEDURE FillDNIType()
+BEGIN
+    INSERT INTO DNIType (`type`) VALUES 
+    ('CC'),  
+    ('CE'),   
+    ('TI'),   
+    ('Pasaporte'),
+    ('NIT');
+END;//
 
 -- agrega stock del producto en la tabla warehouse
 
@@ -460,6 +476,11 @@ BEGin
     values (p_stock, p_amount, p_salePrice, p_idProducts);
     end;//
 
+CREATE PROCEDURE ShowDNITypes()
+BEGIN
+    SELECT `type` FROM DNIType;
+END;//
+
 
 --  triggers -------------------------------------------------------
 
@@ -469,7 +490,7 @@ FOR EACH ROW
 BEGIN
     INSERT INTO `Client`(idPerson) VALUES (NEW.id);
 END;//
-
+-- ----------------
 DELIMITER ;
 INSERT INTO Supplier (companyName, supplierType, idPerson, idPaymentMethods)
 VALUES ('Tech Parts Ltd.', 'Electronics', 1, 1);
@@ -477,9 +498,12 @@ VALUES ('Tech Parts Ltd.', 'Electronics', 1, 1);
 INSERT INTO Supplier (companyName, supplierType, idPerson, idPaymentMethods)
 VALUES ('Gadget Repair Supplies', 'Repair Components', 2, 2);
 
-
 INSERT INTO Material (materialType, materialName, purchaseCost, purchaseDate, idSupplier)
 VALUES ('Pantalla', 'Pantalla Samsung Galaxy S21', 100.00, '2025-04-01 09:00:00', 1);
 
 INSERT INTO Material (materialType, materialName, purchaseCost, purchaseDate, idSupplier)
 VALUES ('Batería', 'Batería para iPhone 12', 80.00, '2025-04-02 10:30:00', 2);
+
+
+
+
