@@ -176,7 +176,20 @@ INSERT INTO `Status` (name) VALUES
 ('Pending'), 
 ('In progress'), 
 ('Repaired');
-select * from service;
+-- ---------------------------------------------------------
+
+INSERT INTO Supplier (companyName, supplierType, idPerson, idPaymentMethods)
+VALUES ('Tech Parts Ltd.', 'Electronics', 1, 1);
+
+INSERT INTO Supplier (companyName, supplierType, idPerson, idPaymentMethods)
+VALUES ('Gadget Repair Supplies', 'Repair Components', 2, 2);
+
+
+INSERT INTO Material (materialType, materialName, purchaseCost, purchaseDate, idSupplier)
+VALUES ('Pantalla', 'Pantalla Samsung Galaxy S21', 100.00, '2025-04-01 09:00:00', 1);
+
+INSERT INTO Material (materialType, materialName, purchaseCost, purchaseDate, idSupplier)
+VALUES ('Batería', 'Batería para iPhone 12', 80.00, '2025-04-02 10:30:00', 2);
 
 -- CALL getServiceIdByName('Cambio de display');
 -- CALL getPaymentMethodIdByName('efectivo');
