@@ -129,7 +129,6 @@ CREATE TABLE Repairs (
     FOREIGN KEY (idStatus) REFERENCES `Status`(id),
     FOREIGN KEY (idService) REFERENCES Service(id)
 );
-
 create table RepairMaterial(
     id int primary key auto_increment,
     idRepair int,
@@ -138,6 +137,7 @@ create table RepairMaterial(
     foreign key (idRepair) references Repairs(id),
     foreign key (idMaterial) references Material(id)
 );
+
 
 INSERT INTO FaultType (fault) VALUES ('Pantalla rota');
 INSERT INTO FaultType (fault) VALUES ('Batería dañada');
@@ -178,18 +178,7 @@ INSERT INTO `Status` (name) VALUES
 ('Repaired');
 -- ---------------------------------------------------------
 
-INSERT INTO Supplier (companyName, supplierType, idPerson, idPaymentMethods)
-VALUES ('Tech Parts Ltd.', 'Electronics', 1, 1);
 
-INSERT INTO Supplier (companyName, supplierType, idPerson, idPaymentMethods)
-VALUES ('Gadget Repair Supplies', 'Repair Components', 2, 2);
-
-
-INSERT INTO Material (materialType, materialName, purchaseCost, purchaseDate, idSupplier)
-VALUES ('Pantalla', 'Pantalla Samsung Galaxy S21', 100.00, '2025-04-01 09:00:00', 1);
-
-INSERT INTO Material (materialType, materialName, purchaseCost, purchaseDate, idSupplier)
-VALUES ('Batería', 'Batería para iPhone 12', 80.00, '2025-04-02 10:30:00', 2);
 
 -- CALL getServiceIdByName('Cambio de display');
 -- CALL getPaymentMethodIdByName('efectivo');
@@ -301,20 +290,26 @@ BEGIN
 END;//
 
 
+-- para mostrar las reparaciones: 
+
+CREATE PROCEDURE ShowRepairs()
+BEGIN
+    SELECT * FROM Repairs;
+END;//
 -- ------------------------------------------------------------------------------------------------
 -- reportes: 
 
 CREATE PROCEDURE commonfaultreport()
 BEGIN
     SELECT 
-        ft.fault AS 'fault type',
-        COUNT(r.id) AS 'amount',
-        MIN(r.entryDate) AS 'first occurrence',
-        MAX(r.entryDate) AS 'latest occurrence'
+        ft.fault AS 'Fault Type',
+        COUNT(r.id) AS 'Amount',
+        MIN(r.entryDate) AS 'First Occurrence',
+        MAX(r.entryDate) AS 'Latest Occurrence'
     FROM Repairs r
     INNER JOIN FaultType ft ON r.idFaultType = ft.id
-    GROUP BY ft.fault
-    ORDER BY amount DESC;
+    GROUP BY ft.fault 
+    ORDER BY Amount DESC;
 END;//
 
 
@@ -323,10 +318,11 @@ BEGIN
     SELECT 
         ft.fault AS FaultType,
         AVG(TIMESTAMPDIFF(HOUR, r.entryDate, r.deliveryDate)) AS AverageHours,
-        MIN(r.entryDate) AS 'earliest repair',
-        MAX(r.entryDate) AS 'latest repair'
+        MIN(r.entryDate) AS 'Earliest Repair',
+        MAX(r.deliveryDate) AS 'Latest Repair' -- ✅ Cambio: ahora usa la última entrega registrada
     FROM Repairs r
     INNER JOIN FaultType ft ON r.idFaultType = ft.id
+    WHERE r.deliveryDate IS NOT NULL -- ✅ Evita cálculos incorrectos si deliveryDate es NULL
     GROUP BY ft.fault
     ORDER BY AverageHours DESC;
 END;//
@@ -337,9 +333,9 @@ BEGIN
     SELECT 
         CONCAT(p.`name`, ' ', p.lastName) AS 'Client',
         COUNT(r.id) AS TotalRepairs,
-        GROUP_CONCAT(DISTINCT s.service SEPARATOR ', ') AS RequestedServices,
-        MIN(r.entryDate) AS 'first repair',
-        MAX(r.entryDate) AS 'latest repair'
+        COALESCE(GROUP_CONCAT(DISTINCT s.service SEPARATOR ', '), 'No Service') AS RequestedServices, -- ✅ Maneja clientes sin servicios registrados
+        MIN(r.entryDate) AS 'First Repair',
+        MAX(r.deliveryDate) AS 'Latest Repair' -- ✅ Cambio: usa la fecha de entrega en lugar de entryDate
     FROM Repairs r
     INNER JOIN `Client` c ON r.idClient = c.id
     INNER JOIN Person p ON c.idPerson = p.id
@@ -351,12 +347,13 @@ END;//
 CREATE PROCEDURE RepairIncomeReport()
 BEGIN
     SELECT 
-        DATE(r.entryDate) AS 'repair date',
+        DATE(r.deliveryDate) AS 'Repair Date', 
         COUNT(r.id) AS QuantityRepairs,
         SUM(r.repairCost) AS TotalRevenue
     FROM Repairs r
-    GROUP BY DATE(r.entryDate)
-    ORDER BY DATE(r.entryDate) DESC;
+    WHERE r.deliveryDate IS NOT NULL 
+    GROUP BY DATE(r.deliveryDate)
+    ORDER BY DATE(r.deliveryDate) DESC;
 END;//
 
 -- ------------------------------------------------------------------------------------------------
@@ -472,3 +469,17 @@ FOR EACH ROW
 BEGIN
     INSERT INTO `Client`(idPerson) VALUES (NEW.id);
 END;//
+
+DELIMITER ;
+INSERT INTO Supplier (companyName, supplierType, idPerson, idPaymentMethods)
+VALUES ('Tech Parts Ltd.', 'Electronics', 1, 1);
+
+INSERT INTO Supplier (companyName, supplierType, idPerson, idPaymentMethods)
+VALUES ('Gadget Repair Supplies', 'Repair Components', 2, 2);
+
+
+INSERT INTO Material (materialType, materialName, purchaseCost, purchaseDate, idSupplier)
+VALUES ('Pantalla', 'Pantalla Samsung Galaxy S21', 100.00, '2025-04-01 09:00:00', 1);
+
+INSERT INTO Material (materialType, materialName, purchaseCost, purchaseDate, idSupplier)
+VALUES ('Batería', 'Batería para iPhone 12', 80.00, '2025-04-02 10:30:00', 2);
